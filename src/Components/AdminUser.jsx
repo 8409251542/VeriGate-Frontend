@@ -19,7 +19,7 @@ export default function AdminUser() {
 
   const requesterId = authData.user.id; // UUID of the logged-in user
 
-  fetch("http://localhost:5000/get-users", {
+  fetch("https://verigate-backend.onrender.com/get-users", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ requesterId }),
@@ -44,7 +44,7 @@ export default function AdminUser() {
   // Save edited user
   const saveUser = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/edit-user/${editingUserId}`, {
+      const res = await fetch(`https://verigate-backend.onrender.com/edit-user/${editingUserId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

@@ -60,7 +60,7 @@ const UserNumberVerification = () => {
   formData.append("userId", userId); // ✅ important
 
   try {
-    const response = await fetch("http://localhost:5000/upload-csv", {
+    const response = await fetch("https://verigate-backend.onrender.com/upload-csv", {
       method: "POST",
       body: formData,
     });

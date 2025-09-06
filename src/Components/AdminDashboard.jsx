@@ -10,7 +10,7 @@ function AdminDashboard({ setUser }) {
   // }, []);
 
   // const fetchUsers = async () => {
-  //   const res = await fetch("http://localhost:5000/get-users");
+  //   const res = await fetch("https://verigate-backend.onrender.com/get-users");
   //   const data = await res.json();
   //   setUsers(data.users || []);
   // };
@@ -26,7 +26,7 @@ function AdminDashboard({ setUser }) {
     const password = prompt("Enter password:");
     const limit = prompt("Enter limit:");
 
-    const res = await fetch("http://localhost:5000/add-user", {
+    const res = await fetch("https://verigate-backend.onrender.com/add-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password, limit: parseInt(limit) }),

@@ -5,7 +5,7 @@ export default function PurchaseAdmin() {
   const [purchases, setPurchases] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/purchases")
+    fetch("https://verigate-backend.onrender.com/purchases")
       .then((res) => res.json())
       .then((data) => setPurchases(data.purchases))
       .catch(() => toast.error("❌ Failed to load purchases"));
@@ -13,7 +13,7 @@ export default function PurchaseAdmin() {
 
   const approvePurchase = async (id) => {
     try {
-      const res = await fetch("http://localhost:5000/approve-purchase", {
+      const res = await fetch("https://verigate-backend.onrender.com/approve-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ purchaseId: id, tokenRate: 100 }),

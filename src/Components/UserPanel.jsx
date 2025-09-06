@@ -53,7 +53,7 @@ export default function UserPanel({ user, setUser }) {
               Verify Number
             </button>
           </li>
-          <li>
+          {/* <li>
             <button
               onClick={() => setActivePage("Plans")}
               className={`w-full cursor-pointer text-left hover:text-red-600 ${
@@ -63,7 +63,7 @@ export default function UserPanel({ user, setUser }) {
               Token Via UPI
             </button>
             
-          </li>
+          </li> */}
           <li><button
               onClick={() => setActivePage("UsdtToken")}
               className={`w-full cursor-pointer text-left hover:text-red-600 ${

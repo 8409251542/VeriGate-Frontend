@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import AdminDashboard from "./AdminDashboard";
+
 import AdminUser from "./AdminUser";
-import AddUser from "./AddUser";
+
+import AdminHistoryDashboard from "./AdminUsersData";
 import PurchaseAdmin from "./AdminTokenApprovel";
+import UserManagementDashboard from "./AdminDashboard";
 
 export default function AdminPanel({ user, setUser }) {
   const [activePage, setActivePage] = useState("dashboard");
@@ -16,14 +18,14 @@ export default function AdminPanel({ user, setUser }) {
   const renderContent = () => {
     switch (activePage) {
       case "users":
-        return <AdminUser />;
+        return <AdminHistoryDashboard />;
       case "addUser":
         return <AddUser />;
       case "approval":
         return <PurchaseAdmin />;
       case "dashboard":
       default:
-        return <AdminDashboard setUser={setUser} />;
+        return <UserManagementDashboard setUser={setUser} />;
     }
   };
 
@@ -50,19 +52,10 @@ export default function AdminPanel({ user, setUser }) {
                 activePage === "users" ? "text-red-600 font-semibold" : ""
               }`}
             >
-              Users
+              Users Data
             </button>
           </li>
-          <li>
-            <button
-              onClick={() => setActivePage("addUser")}
-              className={`w-full text-left hover:text-red-600 ${
-                activePage === "addUser" ? "text-red-600 font-semibold" : ""
-              }`}
-            >
-              Add User
-            </button>
-          </li>
+         
           <li>
             <button
               onClick={() => setActivePage("approval")}

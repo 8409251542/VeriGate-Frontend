@@ -29,7 +29,7 @@ const UserNumberVerification = () => {
     const userId = authData?.user?.id;
 
     const res = await fetch(
-      `https://verigate-backend.onrender.com/user-history?userId=${userId}`
+      `http://localhost:5000/user-history?userId=${userId}`
     );
     const data = await res.json();
     setHistory(data);
@@ -40,7 +40,7 @@ const UserNumberVerification = () => {
 
     const ext = selectedFile.name.split(".").pop().toLowerCase();
 
-    if (ext === "csv" || ext === "xlsx" || ext === "xls") {
+    if (ext==="txt" || ext === "csv" || ext === "xlsx" || ext === "xls") {
       setFile(selectedFile);
       setUploadStatus(null);
       setDownloadUrl(null);
@@ -162,7 +162,7 @@ const UserNumberVerification = () => {
     formData.append("userId", userId); // ✅ important
 
     try {
-      const response = await fetch("https://verigate-backend.onrender.com/upload-csv", {
+      const response = await fetch("http://localhost:5000/upload-csv", {
         method: "POST",
         body: formData,
       });
@@ -220,7 +220,7 @@ const UserNumberVerification = () => {
             Phone Number Verifier
           </h1>
           <p className="text-gray-600">
-            Upload your CSV file to separate mobile and landline numbers
+            Upload your CSV/XLSX/TXT file to separate mobile and landline numbers. <a href="/src/assets/Demo.txt" download>Download Demo</a>
           </p>
         </div>
 
@@ -243,7 +243,7 @@ const UserNumberVerification = () => {
             <input
               ref={fileInputRef}
               type="file"
-              accept=".csv"
+              accept=".csv,.xlsx,.xls,.txt"
               onChange={(e) => handleFileSelect(e.target.files[0])}
               className="hidden"
             />
@@ -283,7 +283,7 @@ const UserNumberVerification = () => {
                   </div>
                   <div>
                     <p className="text-lg font-semibold text-gray-700 mb-2">
-                      Drop your CSV/XLSX file here
+                      Drop your CSV/XLSX/TXT file here
                     </p>
                     <p className="text-gray-500 mb-4">
                       or click to browse and select a file
@@ -443,17 +443,16 @@ const UserNumberVerification = () => {
           </h3>
           <div className="space-y-2 text-sm text-gray-600">
             <p>
-              • Upload a CSV file containing phone numbers in a "phone" column
+              • Upload a CSVCSV/XLSX/TXT file containing phone numbers in a "phone" column
             </p>
             <p>
               • The system will verify each number and classify it as mobile or
               landline
             </p>
             <p>
-              • Download the results as a new CSV with separated mobile and
-              landline columns
+              • Download the results as a new CSV
             </p>
-            <p>• Supported format: CSV files with phone numbers</p>
+            <p>• Supported format: CSV/XLSX/TXT files with phone numbers</p>
           </div>
         </div>
       </div>

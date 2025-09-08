@@ -24,7 +24,7 @@ const fetchHistory = async () => {
       ...(dateFilter.end && { end: dateFilter.end }),
     });
 
-    const response = await fetch(`http://localhost:5000/admin/history?${params}`);
+    const response = await fetch(`https://verigate-backend.onrender.com/admin/history?${params}`);
     if (!response.ok) throw new Error('Failed to fetch history');
 
     // make sure response is JSON

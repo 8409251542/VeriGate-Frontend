@@ -220,7 +220,7 @@ const UserNumberVerification = () => {
             Phone Number Verifier
           </h1>
           <p className="text-gray-600">
-            Upload your CSV/XLSX/TXT file to separate mobile and landline numbers. <a className="text-blue-900" href="/src/assets/Demo.txt" download>Download Demo</a>
+            Upload your CSV/XLSX/TXT file to separate mobile and landline numbers. <a className="text-blue-900 font-bold" href="/src/assets/Demo.txt" download>Download Demo</a>
           </p>
         </div>
 

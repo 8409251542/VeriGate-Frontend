@@ -29,7 +29,7 @@ const UserNumberVerification = () => {
     const userId = authData?.user?.id;
 
     const res = await fetch(
-      `http://localhost:5000/user-history?userId=${userId}`
+      `https://verigate-backend.onrender.com/user-history?userId=${userId}`
     );
     const data = await res.json();
     setHistory(data);
@@ -162,7 +162,7 @@ const UserNumberVerification = () => {
     formData.append("userId", userId); // ✅ important
 
     try {
-      const response = await fetch("http://localhost:5000/upload-csv", {
+      const response = await fetch("https://verigate-backend.onrender.com/upload-csv", {
         method: "POST",
         body: formData,
       });
@@ -220,7 +220,7 @@ const UserNumberVerification = () => {
             Phone Number Verifier
           </h1>
           <p className="text-gray-600">
-            Upload your CSV/XLSX/TXT file to separate mobile and landline numbers. <a href="/src/assets/Demo.txt" download>Download Demo</a>
+            Upload your CSV/XLSX/TXT file to separate mobile and landline numbers. <a className="text-blue-900" href="/src/assets/Demo.txt" download>Download Demo</a>
           </p>
         </div>
 

@@ -71,18 +71,8 @@ const UserDashboard = () => {
             <span className="font-semibold text-gray-700">Email:</span>{" "}
             {details.email}
           </p>
-          <p>
-            <span className="font-semibold text-gray-700">Tokens Left:</span>{" "}
-            {details.tokens_left}
-          </p>
-          <p>
-            <span className="font-semibold text-gray-700">Total Limit:</span>{" "}
-            {details.max_limit}
-          </p>
-          <p>
-            <span className="font-semibold text-gray-700">Used Tokens:</span>{" "}
-            {details.used}
-          </p>
+          <p><span className="font-semibold text-gray-700">USDT Balance:</span> {details.usdt_balance} USDT</p>
+
 
           {details.last_recharge ? (
             <div className="p-3 bg-gray-50 rounded-lg">

@@ -1,9 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, Upload, Users, Shield, Phone, Zap, BarChart3 } from "lucide-react";
+import { CheckCircle, Upload, Users, Shield, Phone, Zap, BarChart3, ChevronLeft, ChevronRight, PhoneForwarded, Headphones, FileText, Hash } from "lucide-react";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("features");
+  const [currentSlide, setCurrentSlide] = useState(0);
   const navigate = useNavigate();
   const pricingRef = useRef(null);
 
@@ -16,6 +17,47 @@ export default function Home() {
     { icon: <Zap className="w-8 h-8 text-red-600" />, title: "Token-Based System", description: "Purchase tokens via USDT to access verification services" }
   ];
 
+  const additionalServices = [
+    { 
+      icon: <Headphones className="w-12 h-12 text-white" />, 
+      name: "Extension Setup", 
+      price: "Custom Pricing", 
+      description: "Configure phone extensions for your business communication system with advanced routing" 
+    },
+    { 
+      icon: <PhoneForwarded className="w-12 h-12 text-white" />, 
+      name: "Call Forwarding", 
+      price: "Custom Pricing", 
+      description: "Set up intelligent call forwarding rules and routing for seamless communication" 
+    },
+    { 
+      icon: <Users className="w-12 h-12 text-white" />, 
+      name: "MS Teams Integration", 
+      price: "Custom Pricing", 
+      description: "Seamless integration with Microsoft Teams for unified business communications" 
+    },
+    { 
+      icon: <Hash className="w-12 h-12 text-white" />, 
+      name: "DID Numbers", 
+      price: "Custom Pricing", 
+      description: "Get Direct Inward Dialing numbers for professional business identity" 
+    },
+    { 
+      icon: <BarChart3 className="w-12 h-12 text-white" />, 
+      name: "Call Report Generation", 
+      price: "3 USDT/report", 
+      description: "Detailed call analytics and reporting with comprehensive insights per report",
+      highlight: true 
+    },
+    { 
+      icon: <FileText className="w-12 h-12 text-white" />, 
+      name: "Invoice Generator", 
+      price: "2 USDT/invoice", 
+      description: "Professional invoice generation for your billing and accounting needs",
+      highlight: true 
+    }
+  ];
+
   const stats = [
     { number: "99.9%", label: "Accuracy Rate" },
     { number: "10K+", label: "Numbers Verified Daily" },
@@ -24,12 +66,32 @@ export default function Home() {
   ];
 
   const pricingPlans = [
-    { name: "Starter", price: "10 USDT", tokens: "1,000 Tokens", features: ["Basic verification", "CSV upload/download", "Email support"] },
-    { name: "Professional", price: "50 USDT", tokens: "5,000 Tokens", features: ["Advanced verification", "Bulk processing", "Priority support", "API access"], popular: true },
-    { name: "Enterprise", price: "200 USDT", tokens: "25,000 Tokens", features: ["Unlimited verification", "Custom integration", "Dedicated support", "SLA guarantee"] }
+    { name: "Starter", price: "75 USDT", tokens: "60,000 Number Verification", features: ["Basic verification", "CSV upload/download", "Email support"] },
+    { name: "Professional", price: "100 USDT", tokens: "125,000 Number Verification", features: ["Advanced verification", "Bulk processing", "Priority support", "API access"], popular: true },
+    { name: "Enterprise", price: "180 USDT", tokens: "250,000 Number Verification", features: ["Unlimited verification", "Custom integration", "Dedicated support", "SLA guarantee"] }
   ];
 
-  // 🔽 Scroll to pricing section
+  const heroPlans = [
+    { name: "Starter", price: "75", tokens: "60K", highlight: false },
+    { name: "Pro", price: "100", tokens: "125K", highlight: true },
+    { name: "Enterprise", price: "180", tokens: "250K", highlight: false }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % additionalServices.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % additionalServices.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + additionalServices.length) % additionalServices.length);
+  };
+
   const scrollToPricing = () => {
     setActiveTab("pricing");
     setTimeout(() => {
@@ -52,7 +114,7 @@ export default function Home() {
             <div className="hidden md:flex items-center space-x-8">
               <button
                 onClick={() => setActiveTab("features")}
-                className={`text-sm cursor-pointer  font-medium transition-colors ${activeTab === "features" ? "text-red-600" : "text-gray-600 hover:text-red-600"}`}
+                className={`text-sm cursor-pointer font-medium transition-colors ${activeTab === "features" ? "text-red-600" : "text-gray-600 hover:text-red-600"}`}
               >
                 Features
               </button>
@@ -66,7 +128,13 @@ export default function Home() {
                 onClick={() => navigate("/signup")}
                 className="bg-red-600 text-white cursor-pointer px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
               >
-                Get Started
+                Sign Up
+              </button>
+              <button
+                onClick={() => navigate("/login")}
+                className="bg-red-600 text-white cursor-pointer px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Login
               </button>
             </div>
           </div>
@@ -75,6 +143,75 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="pt-20 pb-16 px-4">
+        {/* Additional Services Slider */}
+          <div className="mb-16">
+            <div className="relative max-w-4xl mx-auto">
+              <div className="overflow-hidden rounded-2xl">
+                <div 
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {additionalServices.map((service, index) => (
+                    <div 
+                      key={index}
+                      className="w-full flex-shrink-0 px-4"
+                    >
+                      <div className={`bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-8 text-white shadow-2xl ${
+                        service.highlight ? "ring-4 ring-yellow-400" : ""
+                      }`}>
+                        <div className="flex flex-col items-center">
+                          <div className="mb-4">
+                            {service.icon}
+                          </div>
+                          <h4 className="text-2xl font-bold mb-2">{service.name}</h4>
+                          <div className="text-3xl font-bold mb-3">{service.price}</div>
+                          <p className="text-red-100 text-center max-w-md">{service.description}</p>
+                          {service.highlight && (
+                            <div className="mt-4 bg-yellow-400 text-gray-900 px-4 py-1 rounded-full text-sm font-semibold">
+                              Pay Per Use
+                            </div>
+                          )}
+                          <button 
+                            onClick={() => navigate("/signup")}
+                            className="mt-6 bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all"
+                          >
+                            Get Started
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Navigation Arrows */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-all"
+              >
+                <ChevronLeft className="w-6 h-6 text-red-600" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-all"
+              >
+                <ChevronRight className="w-6 h-6 text-red-600" />
+              </button>
+
+              {/* Dots Indicator */}
+              <div className="flex justify-center mt-6 gap-2">
+                {additionalServices.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      currentSlide === index ? "bg-red-600 w-8" : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             Verify Phone Numbers
@@ -98,6 +235,49 @@ export default function Home() {
             >
               Login
             </button>
+          </div>
+
+          
+
+          {/* Hero Pricing Cards */}
+          <div className="mb-16">
+            <h3 className="text-2xl font-semibold text-gray-800 mb-6">Choose Your Plan</h3>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-4xl mx-auto">
+              {heroPlans.map((plan, index) => (
+                <div 
+                  key={index} 
+                  className={`relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 border-2 transition-all hover:shadow-lg cursor-pointer transform hover:scale-105 ${
+                    plan.highlight 
+                      ? "border-red-600 ring-2 ring-red-200 shadow-lg" 
+                      : "border-gray-200 hover:border-red-300"
+                  } ${index === 1 ? "sm:scale-110" : ""}`}
+                  onClick={() => navigate("/signup")}
+                >
+                  {plan.highlight && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                        Popular
+                      </span>
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <h4 className="text-lg font-bold text-gray-900 mb-2">{plan.name}</h4>
+                    <div className="text-2xl font-bold text-red-600 mb-1">{plan.price} <span className="text-sm text-gray-600">USDT</span></div>
+                    <div className="text-sm text-gray-600 mb-4">{plan.tokens} Numbers</div>
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                      plan.highlight 
+                        ? "bg-red-100 text-red-700" 
+                        : "bg-gray-100 text-gray-700"
+                    }`}>
+                      Start Verifying
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-gray-500 mt-4">
+              All plans include CSV processing, mobile/landline detection, and carrier information
+            </p>
           </div>
 
           {/* Stats */}
@@ -138,9 +318,9 @@ export default function Home() {
         {activeTab === "pricing" && (
           <section className="py-16" ref={pricingRef}>
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Simple Pricing</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Detailed Pricing</h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                Pay with USDT and get tokens for phone number verification
+                Complete feature breakdown for all our plans
               </p>
             </div>
             
@@ -182,8 +362,8 @@ export default function Home() {
             </div>
           </section>
         )}
-        
       </div>
+
       <section className="py-16 bg-white/30">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">

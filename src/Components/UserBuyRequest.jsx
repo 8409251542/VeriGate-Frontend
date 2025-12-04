@@ -56,12 +56,9 @@ export default function BuyToken() {
      <div className="max-w-lg mx-auto mt-8 mb-12 bg-white rounded-2xl shadow-xl border border-gray-100">
       {/* Header */}
       <div className="px-8 pt-8 pb-6 border-b border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">
-          Buy Tokens
-        </h2>
-        <p className="text-center text-gray-600 font-medium">
-          💰 1 USDT = 100 Tokens
-        </p>
+        <h2>Add USDT Balance</h2>
+<p>💰 Balance will be credited in USDT directly</p>
+
       </div>
 
       <div className="p-8">
@@ -114,14 +111,15 @@ export default function BuyToken() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               USDT Amount
             </label>
-            <input
-              type="number"
-              placeholder="Enter amount"
-              value={usdtAmount}
-              onChange={(e) => setUsdtAmount(e.target.value)}
-              required
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-400"
-            />
+            <select 
+            value={usdtAmount} 
+             onChange={(e) => setUsdtAmount(e.target.value)}
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 text-gray-800 font-medium"
+          >
+            <option value="75">75</option>
+            <option value="100">100</option>
+            <option value="180">180</option>
+          </select>
           </div>
 
           <div>

@@ -3,6 +3,8 @@ import UserDashboard from "./UserDashboard";
 import UserNumberVerification from "./UserNumberVerification";
 import UserPlans from "./UserPlans";
 import BuyToken from "./UserBuyRequest";
+import CallReportGenerator from "./CallReport";
+import InvoiceGenerator from "./InvoiceGeneretor";
 
 export default function UserPanel({ user, setUser }) {
   const [activePage, setActivePage] = useState("dashboard");
@@ -19,6 +21,10 @@ export default function UserPanel({ user, setUser }) {
         return <UserNumberVerification />;
       case "Plans":
         return <UserPlans />;
+      case "Invoice":
+        return <InvoiceGenerator />;
+      case "reports":
+        return <CallReportGenerator/>;
       case "UsdtToken":
         return <BuyToken />;
       case "dashboard":
@@ -51,6 +57,26 @@ export default function UserPanel({ user, setUser }) {
               }`}
             >
               Verify Number
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setActivePage("reports")}
+              className={`w-full cursor-pointer text-left hover:text-red-600 ${
+                activePage === "reports" ? "text-red-600 font-semibold" : ""
+              }`}
+            >
+              Call Report Genarator
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setActivePage("Invoice")}
+              className={`w-full cursor-pointer text-left hover:text-red-600 ${
+                activePage === "Invoice" ? "text-red-600 font-semibold" : ""
+              }`}
+            >
+              Invoice Genarator
             </button>
           </li>
           {/* <li>

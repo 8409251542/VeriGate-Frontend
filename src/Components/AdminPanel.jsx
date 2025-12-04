@@ -5,6 +5,7 @@ import AdminUser from "./AdminUser";
 import AdminHistoryDashboard from "./AdminUsersData";
 import PurchaseAdmin from "./AdminTokenApprovel";
 import UserManagementDashboard from "./AdminDashboard";
+import UserNumberVerification from "./UserNumberVerification";
 
 export default function AdminPanel({ user, setUser }) {
   const [activePage, setActivePage] = useState("dashboard");
@@ -20,9 +21,11 @@ export default function AdminPanel({ user, setUser }) {
       case "users":
         return <AdminHistoryDashboard />;
       case "addUser":
-        return <AddUser />;
+        return <UserNumberVerification />;
       case "approval":
         return <PurchaseAdmin />;
+      case "adminUser":
+        return <AdminUser />;
       case "dashboard":
       default:
         return <UserManagementDashboard setUser={setUser} />;
@@ -55,7 +58,26 @@ export default function AdminPanel({ user, setUser }) {
               Users Data
             </button>
           </li>
-         
+                   <li>
+            <button
+              onClick={() => setActivePage("addUser")}
+              className={`w-full text-left hover:text-red-600 ${
+                activePage === "addUser" ? "text-red-600 font-semibold" : ""
+              }`}
+            >
+              Verfiy Mobile Number
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setActivePage("adminUser")}
+              className={`w-full text-left hover:text-red-600 ${
+                activePage === "adminUser" ? "text-red-600 font-semibold" : ""
+              }`}
+            >
+              All Users
+            </button>
+          </li>
           <li>
             <button
               onClick={() => setActivePage("approval")}

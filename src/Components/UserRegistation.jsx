@@ -3,81 +3,66 @@ import NavigationTab from "./Navigation";
 import { toast } from "react-toastify";
 
 export default function UserRegistration() {
-  const [form, setForm] = useState({
-    name: "",
-    mobile: "",
-    email: "",
-    company: "",
-    password: "",
-    confirmPassword: "",
-  });
+ 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
+ const [form, setForm] = useState({
+  email: "",
+  password: "",
+  confirmPassword: "",
+});
+const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: null });
   };
+const validate = () => {
+  const newErrors = {};
+  if (!form.email.trim() || !/^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$/.test(form.email))
+    newErrors.email = "Please enter a valid email.";
+  if (!form.password) newErrors.password = "Password is required.";
+  if (form.password !== form.confirmPassword)
+    newErrors.confirmPassword = "Passwords do not match.";
+  return newErrors;
+};
 
-  const validate = () => {
-    const newErrors = {};
-    if (!form.name.trim()) newErrors.name = "Name is required.";
-    if (!form.mobile.trim() || !/^\d{10}$/.test(form.mobile))
-      newErrors.mobile = "Please enter a valid 10-digit mobile number.";
-    if (!form.email.trim() || !/^[\w.%+-]+@[\w.-]+\.[a-zA-Z]{2,}$/.test(form.email))
-      newErrors.email = "Please enter a valid email.";
-    if (!form.company.trim()) newErrors.company = "Company is required.";
-    if (!form.password) newErrors.password = "Password is required.";
-    if (form.password !== form.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match.";
-    return newErrors;
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const foundErrors = validate();
+  if (Object.keys(foundErrors).length > 0) {
+    setErrors(foundErrors);
+    return;
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const foundErrors = validate();
-    if (Object.keys(foundErrors).length > 0) {
-      setErrors(foundErrors);
-      return;
+  setLoading(true);
+
+  try {
+    const res = await fetch("https://verigate-backend.onrender.com/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: form.email,
+        password: form.password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast.error("Registration failed: " + data.message);
+    } else {
+      toast.success(data.message);
+      setForm({ email: "", password: "", confirmPassword: "" });
+      setErrors({});
+      setRegistered(true); // show "check email" note
     }
+  } catch (error) {
+    toast.error("An error occurred: " + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
-    setLoading(true);
-
-    try {
-      const res = await fetch("https://verigate-backend.onrender.com/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          mobile: form.mobile,
-          email: form.email,
-          company: form.company,
-          password: form.password,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error("Registration failed: " + data.message);
-      } else {
-        toast.success(data.message);
-        setForm({
-          name: "",
-          mobile: "",
-          email: "",
-          company: "",
-          password: "",
-          confirmPassword: "",
-        });
-        setErrors({});
-      }
-    } catch (error) {
-      toast.error("An error occurred: " + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (<>
     <NavigationTab/>
@@ -88,10 +73,9 @@ export default function UserRegistration() {
         </h2>
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           {[
-            { label: "Full Name", name: "name", type: "text", placeholder: "Enter your full name" },
-            { label: "Mobile Number", name: "mobile", type: "tel", placeholder: "Enter your mobile number" },
+            
             { label: "Email", name: "email", type: "email", placeholder: "Enter your email" },
-            { label: "Company", name: "company", type: "text", placeholder: "Your company name" },
+           
             { label: "Password", name: "password", type: "password", placeholder: "Enter your password" },
             { label: "Confirm Password", name: "confirmPassword", type: "password", placeholder: "Confirm your password" },
           ].map(({ label, name, type, placeholder }) => (

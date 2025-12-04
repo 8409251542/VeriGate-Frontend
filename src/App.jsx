@@ -8,6 +8,7 @@ import Login from "./Components/Login";
 import AdminPanel from "./Components/AdminPanel"; // Use AdminPanel as main admin container
 import UserPanel from "./Components/UserPanel";
 import UserRegistration from "./Components/UserRegistation";
+import WhatsAppButton from "./Components/WhatsApp";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -46,6 +47,7 @@ function App() {
         pauseOnHover
         theme="colored"
       />
+      <WhatsAppButton/>
     </Router>
   );
 }

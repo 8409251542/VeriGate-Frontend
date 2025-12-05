@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { CreditCard, Activity, TrendingUp, Download, ArrowUpRight } from "lucide-react";
 
 const UserDashboard = () => {
   const [details, setDetails] = useState(null);
@@ -37,80 +37,114 @@ const UserDashboard = () => {
     fetchDetails();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("authData");
-    toast.success("Logged out successfully");
-    window.location.href = "/login"; // redirect to login page
-  };
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen text-lg">
-        Loading...
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="w-8 h-8 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  if (!details) {
-    return (
-      <div className="flex items-center justify-center h-screen text-red-600 text-lg">
-        Failed to load user details
-      </div>
-    );
-  }
+  if (!details) return <div className="text-red-400 p-8 text-center bg-slate-900 border border-slate-800 rounded-xl">Failed to load details</div>;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-red-600 mb-6 text-center">
-          User Dashboard
-        </h1>
+    <div className="animate-fade-in">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-white mb-2">Dashboard Overview</h1>
+        <p className="text-slate-400">Welcome back, here's what's happening with your account.</p>
+      </div>
 
-        <div className="space-y-4">
-          <p>
-            <span className="font-semibold text-gray-700">Email:</span>{" "}
-            {details.email}
-          </p>
-          <p><span className="font-semibold text-gray-700">USDT Balance:</span> {details.usdt_balance} USDT</p>
-
-
-          {details.last_recharge ? (
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="font-semibold text-gray-700">Last Recharge</p>
-              <p>
-                Amount:{" "}
-                <span className="text-green-600">
-                  {details.last_recharge.usdt_amount} USDT
-                </span>
-              </p>
-              <p>
-                Date:{" "}
-                {new Date(details.last_recharge.created_at).toLocaleString()}
-              </p>
-              <p>
-                Status:{" "}
-                <span
-                  className={
-                    details.last_recharge.status === "approved"
-                      ? "text-green-600"
-                      : "text-yellow-600"
-                  }
-                >
-                  {details.last_recharge.status}
-                </span>
-              </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Balance Card */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group hover:border-cyan-500/30 transition-colors shadow-lg">
+          <div className="absolute right-0 top-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
+          <div className="flex justify-between items-start mb-4">
+            <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-cyan-400">
+              <CreditCard size={20} />
             </div>
-          ) : (
-            <p className="text-gray-500 italic">No recharge history</p>
-          )}
+            <span className="flex items-center text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-full">
+              <TrendingUp size={12} className="mr-1" /> Active
+            </span>
+          </div>
+          <div className="relative z-10">
+            <p className="text-slate-400 text-sm font-medium mb-1">Total Balance</p>
+            <h2 className="text-3xl font-mono text-white tracking-tight">{details.usdt_balance} <span className="text-sm text-slate-500 font-sans">USDT</span></h2>
+          </div>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md transition"
-        >
-          Logout
-        </button>
+        {/* Status Card */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 group hover:border-cyan-500/30 transition-colors shadow-lg">
+          <div className="flex justify-between items-start mb-4">
+            <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center text-blue-400">
+              <Activity size={20} />
+            </div>
+          </div>
+          <p className="text-slate-400 text-sm font-medium mb-1">Account Status</p>
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            Active Member
+            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+          </h2>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Transactions */}
+        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-white">Recent Transactions</h3>
+            {/* <button className="text-sm text-cyan-400 hover:text-cyan-300 font-medium">View All</button> */}
+          </div>
+
+          <div className="space-y-4">
+            {details.last_recharge ? (
+              <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-800 hover:border-slate-700 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-400">
+                    <ArrowUpRight size={20} />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">Wallet Recharge</p>
+                    <p className="text-slate-400 text-sm">{new Date(details.last_recharge.created_at).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-emerald-400 font-bold">+{details.last_recharge.usdt_amount} USDT</p>
+                  <p className={`text-xs font-bold uppercase ${details.last_recharge.status === 'approved' ? 'text-emerald-500' : 'text-yellow-500'
+                    }`}>{details.last_recharge.status}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-slate-500 border border-dashed border-slate-800 rounded-xl">
+                No recent transactions found
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+          <h3 className="text-lg font-bold text-white mb-6">Quick Actions</h3>
+          <div className="space-y-3">
+            <button className="w-full flex items-center gap-3 p-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors text-left group">
+              <div className="w-8 h-8 bg-cyan-500/10 rounded-lg flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-slate-900 transition-colors">
+                <Download size={16} />
+              </div>
+              <div>
+                <p className="text-white font-medium text-sm">Download Report</p>
+                <p className="text-slate-500 text-xs">PDF for last 30 days</p>
+              </div>
+            </button>
+            <button className="w-full flex items-center gap-3 p-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors text-left group">
+              <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                <CreditCard size={16} />
+              </div>
+              <div>
+                <p className="text-white font-medium text-sm">Add Funds</p>
+                <p className="text-slate-500 text-xs">Crypto or Card</p>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

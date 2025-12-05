@@ -4,13 +4,10 @@ import {
   FileSpreadsheet,
   Download,
   Zap,
-  AlertCircle,
   CheckCircle,
-  DollarSign,
-  Clock,
-  LogOut,
   User,
   Calendar,
+  AlertCircle
 } from "lucide-react";
 
 export default function CallReportGenerator() {
@@ -19,7 +16,7 @@ export default function CallReportGenerator() {
   const [status, setStatus] = useState("");
   const [processing, setProcessing] = useState(false);
   const [user, setUser] = useState(null);
-    const [downloadUrl, setDownloadUrl] = useState(null);
+  const [downloadUrl, setDownloadUrl] = useState(null);
   const [fileName, setFileName] = useState("");
   const fileInputRef = useRef(null);
 
@@ -56,7 +53,8 @@ export default function CallReportGenerator() {
     }
   }, []);
 
-  const logStatus = (msg) => {
+  const logStatus = (msg, type = 'info') => {
+    // Basic logging, could be enhanced
     setStatus((prev) => prev + "\n" + msg);
   };
 
@@ -73,13 +71,10 @@ export default function CallReportGenerator() {
     if (!reportDate) return alert("Please select a report date!");
     if (!user) return alert("User not logged in. Please log in first.");
 
-    
-
     setProcessing(true);
     setStatus("Processing started...");
-    setDownloadUrl(null); // Reset download state
+    setDownloadUrl(null);
     setFileName("");
-    logStatus(`Reading file: ${file.name}`);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -99,19 +94,13 @@ export default function CallReportGenerator() {
       }
 
       const data = await res.json();
-      setDownloadUrl(data.downloadUrl); // API must return the URL
+      setDownloadUrl(data.downloadUrl);
       setFileName(`buyer_reports_${reportDate}.zip`);
 
-      logStatus(
-        "✅ Done! Report generated successfully. Click the download button below."
-      );
-      // Update token balance
       const newBalance = usdtBalance - COST_PER_REPORT;
       setUsdtBalance(newBalance);
 
-      logStatus(
-        "✅ Done! Report generated successfully. Click the download button below."
-      );
+      logStatus("✅ Done! Report generated successfully.");
     } catch (err) {
       console.error(err);
       logStatus("❌ Error: " + err.message);
@@ -127,67 +116,45 @@ export default function CallReportGenerator() {
     }
   };
 
-  
-
   const canAffordReport = usdtBalance >= COST_PER_REPORT;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header with User Info */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="text-center flex-1">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-4">
-              <FileSpreadsheet className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Call Report Generator
-            </h1>
-            <p className="text-gray-600">
-              Upload your call data file (CSV/XLSX), choose report date, and get
-              buyer-wise reports.
+    <div className="animate-fade-in max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white mb-2">Call Report Generator</h1>
+          <p className="text-slate-400 text-sm">Convert raw call data into buyer-wise performance reports.</p>
+        </div>
+
+        {/* Balance Widget */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center gap-4 shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-orange-500/20">
+            <Zap size={20} fill="currentColor" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 font-bold uppercase">Balance</p>
+            <p className="text-xl font-mono text-white leading-none">
+              {usdtBalance.toFixed(2)} <span className="text-xs text-slate-500">USDT</span>
             </p>
           </div>
-
-          {user && (
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <User className="w-4 h-4" />
-              <span>{user?.email || "User"}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Token Balance Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3>USDT Balance</h3>
-                <p className="text-2xl font-bold text-blue-600">
-                  {(usdtBalance || 0).toFixed(2)} USDT
-                </p>
-
-                <span>Cost per report: 1 USDT</span>
-              </div>
-              
-
-            </div>
+          <div className="h-8 w-px bg-slate-800 mx-2"></div>
+          <div className="text-xs text-slate-500 text-right">
+            <p>Cost/Report</p>
+            <p className="text-white font-bold">{COST_PER_REPORT.toFixed(2)} USDT</p>
           </div>
-
-          
         </div>
+      </div>
 
-        {/* Main Content */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-          {/* File Upload */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Upload Call Data File (.csv, .xlsx, .xls)
-            </label>
-            <div className="relative">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Form */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+            {/* File Upload */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-300 mb-3">
+                Upload Call Data (.csv, .xlsx)
+              </label>
               <input
                 type="file"
                 ref={fileInputRef}
@@ -197,141 +164,131 @@ export default function CallReportGenerator() {
               />
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all"
+                className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all group ${file ? 'border-emerald-500/50 bg-emerald-500/5' : 'border-slate-700 hover:border-cyan-500/50 hover:bg-slate-800'
+                  }`}
               >
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-lg font-medium text-gray-700 mb-2">
-                  {file ? file.name : "Click to upload your file"}
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors ${file ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400 group-hover:text-cyan-400 group-hover:bg-cyan-950'
+                  }`}>
+                  {file ? <FileSpreadsheet size={28} /> : <Upload size={28} />}
+                </div>
+
+                <p className={`text-lg font-medium mb-1 ${file ? 'text-white' : 'text-slate-300'}`}>
+                  {file ? file.name : "Click to upload file"}
                 </p>
-                <p className="text-sm text-gray-500">
-                  Supports CSV, XLSX, and XLS formats
+                <p className="text-sm text-slate-500">
+                  {(file && (file.size / 1024).toFixed(1) + ' KB') || 'Supports CSV, XLSX, XLS'}
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* Date Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Select Report Date
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="date"
-                value={reportDate}
-                onChange={(e) => setReportDate(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+            {/* Date Selection */}
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-slate-300 mb-3">
+                Report Date
+              </label>
+              <div className="relative">
+                <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input
+                  type="date"
+                  value={reportDate}
+                  onChange={(e) => setReportDate(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-12 pr-4 py-3.5 text-slate-200 outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all [color-scheme:dark]"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Generate Button */}
-          <div className="mb-6">
+            {/* Action Buttons */}
             <button
               onClick={handleGenerate}
               disabled={!file || !reportDate || processing || !canAffordReport}
-              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all ${
-                !file || !reportDate || processing || !canAffordReport
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl"
-              }`}
+              className="w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed bg-cyan-500 hover:bg-cyan-400 text-slate-950 hover:shadow-cyan-500/20"
             >
               {processing ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Processing...</span>
-                </div>
+                <>
+                  <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin"></div>
+                  Processing...
+                </>
               ) : (
-                <div className="flex items-center justify-center space-x-2">
-                  <Download className="w-5 h-5" />
-                  <span>Generate Reports ({COST_PER_REPORT} USDT)</span>
-                </div>
+                <>
+                  <Zap size={20} fill="currentColor" />
+                  Generate Report
+                </>
               )}
             </button>
+
+            {!canAffordReport && (
+              <p className="text-red-400 text-sm text-center mt-3 bg-red-500/10 py-2 rounded-lg border border-red-500/20">
+                ⚠️ Insufficient balance. Please recharge.
+              </p>
+            )}
           </div>
 
-          {/* Download Button - Shows after successful generation */}
-          {downloadUrl && fileName && (
-            <div className="mb-6">
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
-                <div className="flex items-center space-x-2 text-green-700 text-sm mb-2">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Report generated successfully!</span>
+          {/* Success / Download Area */}
+          {downloadUrl && (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 animate-slide-up">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-slate-900">
+                  <CheckCircle size={18} />
                 </div>
-                <p className="text-green-600 text-sm">
-                  Your buyer reports are ready for download.
-                </p>
+                <h3 className="text-emerald-400 font-bold">Report Ready!</h3>
               </div>
               <button
                 onClick={handleDownload}
-                className="w-full py-4 px-6 rounded-xl font-semibold text-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all"
+                className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-emerald-500/20"
               >
-                <div className="flex items-center justify-center space-x-2">
-                  <Download className="w-5 h-5" />
-                  <span>Download {fileName}</span>
-                </div>
+                <Download size={18} />
+                Download Result ({fileName})
               </button>
             </div>
           )}
 
-          {/* Status Display */}
+          {/* Status Log */}
           {status && (
-            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-              <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-                <CheckCircle className="w-4 h-4 mr-2 text-blue-600" />
-                Processing Status
-              </h4>
-              <pre className="text-sm text-gray-600 whitespace-pre-wrap font-mono bg-white p-3 rounded border max-h-60 overflow-y-auto">
-                {status}
-              </pre>
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-400 overflow-hidden">
+              <div className="flex items-center gap-2 mb-2 text-slate-500 border-b border-slate-800 pb-2">
+                <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+                SYS.LOG
+              </div>
+              <pre className="whitespace-pre-wrap">{status}</pre>
             </div>
           )}
+        </div>
 
-          {/* How it works */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              How It Works
-            </h3>
-            <div className="grid md:grid-cols-4 gap-4">
+        {/* Sidebar / Instructions */}
+        <div className="space-y-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+            <h3 className="text-white font-bold mb-4">How it works</h3>
+            <div className="space-y-6 relative">
+              <div className="absolute left-3.5 top-2 bottom-2 w-px bg-slate-800"></div>
               {[
-                {
-                  step: "1",
-                  title: "Upload",
-                  desc: "Upload your call data file",
-                },
-                {
-                  step: "2",
-                  title: "Select Date",
-                  desc: "Choose the report date",
-                },
-                {
-                  step: "3",
-                  title: "Process",
-                  desc: "System analyzes and groups by buyer",
-                },
-                {
-                  step: "4",
-                  title: "Download",
-                  desc: "Get ZIP file with all reports",
-                },
-              ].map((item, index) => (
-                <div key={index} className="text-center">
-                  <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm mb-2 mx-auto">
+                { step: 1, title: "Upload Data", desc: "Upload your raw call logs (CSV/XLSX)" },
+                { step: 2, title: "Select Date", desc: "Choose the reporting date to filter" },
+                { step: 3, title: "Process", desc: "System aggregates data by buyer" },
+                { step: 4, title: "Download", desc: "Get a ZIP file with individual reports" },
+              ].map((item) => (
+                <div key={item.step} className="relative flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-xs font-bold text-cyan-400 z-10 shrink-0">
                     {item.step}
                   </div>
-                  <h4 className="font-medium text-gray-900 text-sm mb-1">
-                    {item.title}
-                  </h4>
-                  <p className="text-xs text-gray-600">{item.desc}</p>
+                  <div className="pt-1">
+                    <h4 className="text-slate-200 font-bold text-sm">{item.title}</h4>
+                    <p className="text-slate-500 text-xs">{item.desc}</p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Payment Modal */}
-        
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-900/20 to-cyan-900/20 border border-blue-500/20">
+            <div className="flex gap-3">
+              <AlertCircle className="text-blue-400 shrink-0" size={20} />
+              <div>
+                <h4 className="text-blue-400 font-bold text-sm mb-1">Pro Tip</h4>
+                <p className="text-blue-200/60 text-xs leading-relaxed">Ensure your file has standard headers. The system automatically detects common formats.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

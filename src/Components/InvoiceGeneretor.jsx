@@ -168,13 +168,28 @@ const InvoiceGenerator = () => {
                 <div className="flex-1 bg-slate-950 rounded-xl overflow-hidden relative group mb-4 border border-slate-800">
                   <img src={downloadUrl} alt="Preview" className="w-full h-full object-contain" />
                 </div>
-                <a
-                  href={downloadUrl}
-                  download
-                  className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all border border-white/5"
+                <button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch(downloadUrl);
+                      const blob = await response.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.style.display = 'none';
+                      a.href = url;
+                      a.download = `invoice-${formData.invoiceNumber}.jpg`;
+                      document.body.appendChild(a);
+                      a.click();
+                      window.URL.revokeObjectURL(url);
+                    } catch (error) {
+                      console.error('Download failed:', error);
+                      window.open(downloadUrl, '_blank');
+                    }
+                  }}
+                  className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all border border-white/5 cursor-pointer"
                 >
                   <Download size={18} /> Download JPG
-                </a>
+                </button>
               </div>
             ) : (
               <div className="text-center text-slate-600">

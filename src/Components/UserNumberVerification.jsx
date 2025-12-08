@@ -134,7 +134,7 @@ const UserNumberVerification = () => {
       const authData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = authData?.user?.id;
       if (userId) {
-        const res = await fetch(`http://verigate-backend.onrender.com/user-history?userId=${userId}`);
+        const res = await fetch(`https://verigate-backend.onrender.com/user-history?userId=${userId}`);
         const data = await res.json();
         setHistory(Array.isArray(data) ? data : []);
       }
@@ -301,7 +301,7 @@ const UserNumberVerification = () => {
       formData.append("userId", userId);
       formData.append("countryCode", countryCodes[selectedCountry]);
 
-      const response = await fetch("http://localhost:5000/upload-csv", { method: "POST", body: formData });
+      const response = await fetch("https://verigate-backend.onrender.com/upload-csv", { method: "POST", body: formData });
       if (response.ok) {
         const result = await response.json();
         setProgress(100);

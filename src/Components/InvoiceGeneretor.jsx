@@ -22,7 +22,7 @@ const InvoiceGenerator = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.user?.id;
-  const API_URL = 'https://verigate-backend.onrender.com';
+  const API_URL = 'http://verigate-backend.onrender.com';
 
   useEffect(() => {
     setFormData(prev => ({ ...prev, invoiceNumber: generateRandomInvoice() }));

@@ -123,7 +123,7 @@ const UserNumberVerification = () => {
 
   const resumeProgressTracking = (savedProgress) => {
     const elapsed = Date.now() - savedProgress.startTime - (savedProgress.pauseTime || 0);
-    const avgLatency = 12.8;
+    const avgLatency = 5.8;
     const expectedProcessed = Math.min(elapsed / avgLatency, savedProgress.totalNumbers);
     setProcessedNumbers(Math.floor(expectedProcessed));
     startProgressSimulation(savedProgress.totalNumbers, savedProgress.startTime);
@@ -134,7 +134,7 @@ const UserNumberVerification = () => {
       const authData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = authData?.user?.id;
       if (userId) {
-        const res = await fetch(`https://verigate-backend.onrender.com/user-history?userId=${userId}`);
+        const res = await fetch(`http://verigate-backend.onrender.com/user-history?userId=${userId}`);
         const data = await res.json();
         setHistory(Array.isArray(data) ? data : []);
       }
@@ -301,7 +301,7 @@ const UserNumberVerification = () => {
       formData.append("userId", userId);
       formData.append("countryCode", countryCodes[selectedCountry]);
 
-      const response = await fetch("https://verigate-backend.onrender.com/upload-csv", { method: "POST", body: formData });
+      const response = await fetch("http://localhost:5000/upload-csv", { method: "POST", body: formData });
       if (response.ok) {
         const result = await response.json();
         setProgress(100);
@@ -364,8 +364,8 @@ const UserNumberVerification = () => {
       {/* Upload Area */}
       <div
         className={`bg-slate-900 border-2 border-dashed rounded-2xl p-10 transition-all text-center mb-8 relative overflow-hidden group ${dragOver ? "border-cyan-400 bg-cyan-500/5" :
-            file ? "border-emerald-500/50 bg-emerald-500/5" :
-              "border-slate-700 hover:border-cyan-500/30 hover:bg-slate-800"
+          file ? "border-emerald-500/50 bg-emerald-500/5" :
+            "border-slate-700 hover:border-cyan-500/30 hover:bg-slate-800"
           }`}
         onDrop={handleDrop}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -420,8 +420,8 @@ const UserNumberVerification = () => {
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8">
           {uploadStatus && (
             <div className={`mb-6 p-4 rounded-xl flex items-start gap-3 ${uploadStatus.type === 'error' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                uploadStatus.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                  'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+              uploadStatus.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                'bg-blue-500/10 text-blue-400 border border-blue-500/20'
               }`}>
               {uploadStatus.type === 'error' ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
               <div>

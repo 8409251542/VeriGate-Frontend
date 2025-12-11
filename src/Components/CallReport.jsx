@@ -21,7 +21,7 @@ export default function CallReportGenerator() {
   const fileInputRef = useRef(null);
 
   const [usdtBalance, setUsdtBalance] = useState(0);
-  const COST_PER_REPORT = 1; // 1 USDT
+  const COST_PER_REPORT = 3.5; // 1 USDT
 
   const API_BASE = "https://verigate-backend.onrender.com";
 

@@ -7,7 +7,7 @@ import UserPlans from "./UserPlans";
 import BuyToken from "./UserBuyRequest";
 import CallReportGenerator from "./CallReport";
 import InvoiceGenerator from "./InvoiceGeneretor";
-import ChangePassword from "./ChangePassword";
+import ImageTools from "./ImageTools";
 
 export default function UserPanel({ user, setUser }) {
   const [activePage, setActivePage] = useState("dashboard");
@@ -25,6 +25,7 @@ export default function UserPanel({ user, setUser }) {
     { id: "reports", label: "Calls Reports Generator", icon: <Phone size={20} /> },
     { id: "Invoice", label: "Invoice Generator", icon: <FileText size={20} /> },
     { id: "UsdtToken", label: "Crypto Token", icon: <CreditCard size={20} /> },
+    { id: "ImageTools", label: "AI Image Tools", icon: <Zap size={20} /> },
     { id: "changePassword", label: "Change Password", icon: <Zap size={20} /> },
   ];
 
@@ -40,6 +41,8 @@ export default function UserPanel({ user, setUser }) {
         return <CallReportGenerator />;
       case "UsdtToken":
         return <BuyToken />;
+      case "ImageTools":
+        return <ImageTools />;
       case "changePassword":
         return <ChangePassword />;
       case "dashboard":

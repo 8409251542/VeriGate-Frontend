@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, FileText, Zap, Phone, CreditCard, LogOut, Menu, X, ChevronRight, Activity } from "lucide-react";
+import { LayoutDashboard, FileText, Zap, Phone, CreditCard, LogOut, Menu, X, ChevronRight, Activity, Mail } from "lucide-react";
 import { toast } from "react-toastify";
 import UserDashboard from "./UserDashboard";
 import UserNumberVerification from "./UserNumberVerification";
@@ -8,6 +8,8 @@ import BuyToken from "./UserBuyRequest";
 import CallReportGenerator from "./CallReport";
 import InvoiceGenerator from "./InvoiceGeneretor";
 import ImageTools from "./ImageTools";
+import MyMail from "./MyMail/MyMail";
+import ChangePassword from "./ChangePassword";
 
 export default function UserPanel({ user, setUser }) {
   const [activePage, setActivePage] = useState("dashboard");
@@ -23,9 +25,9 @@ export default function UserPanel({ user, setUser }) {
     { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
     { id: "VerifyNumber", label: "Numbers Verification", icon: <Zap size={20} /> },
     { id: "reports", label: "Calls Reports Generator", icon: <Phone size={20} /> },
-    { id: "Invoice", label: "Invoice Generator", icon: <FileText size={20} /> },
     { id: "UsdtToken", label: "Crypto Token", icon: <CreditCard size={20} /> },
     { id: "ImageTools", label: "AI Image Tools", icon: <Zap size={20} /> },
+    { id: "MyMail", label: "MyMail PRO", icon: <Mail size={20} /> },
     { id: "changePassword", label: "Change Password", icon: <Zap size={20} /> },
   ];
 
@@ -43,6 +45,8 @@ export default function UserPanel({ user, setUser }) {
         return <BuyToken />;
       case "ImageTools":
         return <ImageTools />;
+      case "MyMail":
+        return <MyMail user={user} />;
       case "changePassword":
         return <ChangePassword />;
       case "dashboard":

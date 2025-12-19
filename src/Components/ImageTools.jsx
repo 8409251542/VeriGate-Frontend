@@ -9,7 +9,6 @@ export default function ImageTools() {
     const userId = authData?.user?.id;
     const API_BASE = "https://verigate-backend.onrender.com"; // Or your backend URL
 
-    // URLS for your 5 image generator sites
     // URLS for your local tools (served via backend)
     const tools = [
         { name: "SER Tool", url: `${API_BASE}/api/tools/SER.html` },
@@ -27,15 +26,19 @@ export default function ImageTools() {
         fetchUserDetails();
     }, []);
 
-    // Listen for messages from iFrame
+    // Listen for messages from iFrame (Deduction Trigger)
     useEffect(() => {
         const handleMessage = async (event) => {
-            // Security check: verify event.origin if possible
-            // if (event.origin !== "https://your-child-site.com") return;
-
             if (event.data && event.data.type === "IMAGE_GENERATION_SUCCESS") {
-                console.log("Creating deduction for image generation...");
-                await deductCost(event.data.cost || 2);
+                console.log("Received deduction request:", event.data);
+
+                // Read userId directly to avoid stale closure
+                const currentAuth = JSON.parse(localStorage.getItem("user"));
+                const currentUserId = currentAuth?.user?.id || currentAuth?.id;
+
+                if (currentUserId) {
+                    await deductCost(event.data.cost || 2, currentUserId);
+                }
             }
         };
 
@@ -60,20 +63,20 @@ export default function ImageTools() {
         }
     };
 
-    const deductCost = async (amount) => {
+    const deductCost = async (amount, currentUserId) => {
         try {
             const res = await fetch(`${API_BASE}/api/deduct-image-cost`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: userId, cost: amount }),
+                body: JSON.stringify({ userId: currentUserId || userId, amount: amount, toolName: "Tool Download" }),
             });
             const data = await res.json();
 
             if (res.ok) {
-                toast.info(`Generated! ${amount} USDT deducted.`);
+                toast.success(`Download started! ${amount} USDT deducted.`);
                 setBalance(data.newBalance);
             } else {
-                toast.error(data.message || "Failed to deduct balance");
+                toast.error(data.message || "Insufficient balance for download");
             }
         } catch (err) {
             console.error("Deduction error:", err);
@@ -115,10 +118,10 @@ export default function ImageTools() {
                 ))}
             </div>
 
-            {/* iFrame Container */}
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden h-[800px] relative">
+            {/* Content Area */}
+            <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden min-h-[600px] relative"> {/* Increased Height */}
 
-                {/* Balance Check Overlay */}
+                {/* Balance & Lockout Check */}
                 {balance < 2 && (
                     <div className="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-center p-6">
                         <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 max-w-md shadow-2xl">
@@ -131,7 +134,7 @@ export default function ImageTools() {
                                 Your current balance is <span className="text-red-400">{balance.toFixed(4)} USDT</span>.
                             </p>
                             <button
-                                onClick={() => window.location.href = '/buy-token'}
+                                onClick={() => window.location.href = '/buy-token'} // Adjust route if needed
                                 className="px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition-all"
                             >
                                 Add Funds
@@ -140,19 +143,13 @@ export default function ImageTools() {
                     </div>
                 )}
 
+                {/* Iframe Tools */}
                 <iframe
                     src={tools[activeTab].url}
                     title={tools[activeTab].name}
-                    className="w-full h-full border-0"
+                    className="w-full h-[800px] border-0"
                     sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
                 />
-
-                {/* Helper overlay for demo (Remove in production if needed) */}
-                {!tools[activeTab].url.includes("http") && (
-                    <div className="absolute inset-0 flex items-center justify-center text-slate-500">
-                        Select a valid tool URL in the code to load.
-                    </div>
-                )}
             </div>
         </div>
     );

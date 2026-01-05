@@ -2,7 +2,7 @@ import React from "react";
 import { MessageCircle } from "lucide-react"; // optional icon lib
 
 const WhatsAppButton = () => {
-  const phoneNumber = "18123082146"; // Replace with your WhatsApp number
+  const phoneNumber = "1812308dfdf"; // Replace with your WhatsApp number
   const message = "Hello, I’d like to know more about your services!"; // Default message
 
   const openWhatsApp = () => {

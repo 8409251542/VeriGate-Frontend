@@ -4,8 +4,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { Server, Plus, Trash2, Shield, Globe } from "lucide-react";
 
-const API_URL = "http://localhost:5000/api/mymail/admin/servers"; // Admin endpoints
-const PUBLIC_URL = "http://localhost:5000/api/mymail/servers/available";
+const API_URL = "https://verigate-backend.onrender.com/api/mymail/admin/servers"; // Admin endpoints
+const PUBLIC_URL = "https://verigate-backend.onrender.com/api/mymail/servers/available";
 
 export default function AdminServerManager() {
     const [servers, setServers] = useState([]);

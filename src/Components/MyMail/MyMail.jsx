@@ -21,8 +21,35 @@ export default function MyMail({ user }) {
     // Logic State
     const rotator = useRef(new CredentialRotator());
     const [rotateIPs, setRotateIPs] = useState(false);
+    const [selectedServerId, setSelectedServerId] = useState("direct");
 
-    // ... existing refs and useEffect ...
+    // Template State
+    const [template, setTemplate] = useState({
+        senderName: "Support Team",
+        subject: "Hello {{name}}",
+        text: "Hi {{name}}, your code is {{c3}}.",
+        html: "<p>Hi <strong>{{name}}</strong>,</p><p>Your code is <code>{{c3}}</code></p>"
+    });
+
+    // Sending State
+    const [isSending, setIsSending] = useState(false);
+    const [progress, setProgress] = useState({ sent: 0, failed: 0, total: 0 });
+    const [logs, setLogs] = useState([]);
+
+    // Refs for loop control
+    const stopRef = useRef(false);
+
+    useEffect(() => {
+        fetchMyServers();
+    }, []);
+
+    const fetchMyServers = async () => {
+        try {
+            const userId = user?.user?.id || user?.id; // Robust check
+            const res = await axios.get(`${API_URL}/servers/my-servers?userId=${userId}`);
+            setMyServers(res.data.servers);
+        } catch (e) { }
+    };
 
     // ==========================
     // 2. SENDING LOGIC

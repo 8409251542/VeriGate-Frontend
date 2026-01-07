@@ -56,6 +56,26 @@ export default function ServerMarket({ user, onRent }) {
         }
     };
 
+    const handleBulkRent = async (quantity) => {
+        const userId = user.user?.id || user.id;
+        if (!confirm(`Are you sure you want to rent ${quantity} random servers for 1 hour?`)) return;
+
+        try {
+            setLoading(true);
+            const res = await axios.post(`${API_URL}/servers/rent-quantity`, {
+                userId: userId,
+                quantity: quantity,
+                durationHours: 1 // Fixed as per request
+            });
+            toast.success(res.data.message);
+            fetchMyServers();
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Bulk rent failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="p-6 text-slate-200">
             {/* CONFIRM MODAL */}
@@ -113,8 +133,25 @@ export default function ServerMarket({ user, onRent }) {
 
                 {/* LEFT: MARKETPLACE */}
                 <div>
-                    <h2 className="text-xl font-bold mb-4 flex items-center justify-between">
+                    <h2 className="text-xl font-bold mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <span className="flex items-center gap-2"><Globe className="text-cyan-400" /> Global Server Market</span>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => handleBulkRent(5)}
+                                disabled={loading}
+                                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-xs px-3 py-1.5 rounded-lg border border-purple-400/30 flex items-center gap-1 shadow-lg shadow-purple-900/20"
+                            >
+                                <span className="font-bold">Pack of 5</span> (1h)
+                            </button>
+                            <button
+                                onClick={() => handleBulkRent(10)}
+                                disabled={loading}
+                                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-xs px-3 py-1.5 rounded-lg border border-purple-400/30 flex items-center gap-1 shadow-lg shadow-purple-900/20"
+                            >
+                                <span className="font-bold">Pack of 10</span> (1h)
+                            </button>
+                        </div>
                     </h2>
                     <div className="space-y-3">
                         {available.map(srv => (

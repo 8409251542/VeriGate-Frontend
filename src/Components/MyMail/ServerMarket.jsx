@@ -37,6 +37,8 @@ export default function ServerMarket({ user, onRent }) {
         }
     };
 
+    const [rentDuration, setRentDuration] = useState(1); // 1 or 3 hours
+
     const handleRent = async () => {
         if (!selectedServer) return;
         const userId = user.user?.id || user.id;
@@ -44,16 +46,72 @@ export default function ServerMarket({ user, onRent }) {
             const res = await axios.post(`${API_URL}/servers/rent`, {
                 userId: userId,
                 serverId: selectedServer.id,
-                durationHours: 1 // Default 1 hour demo
+                durationHours: rentDuration
             });
             toast.success(res.data.message);
             fetchMyServers();
             setSelectedServer(null); // Close modal
+            setRentDuration(1); // Reset
             if (onRent) onRent(); // Refresh parent if needed
         } catch (err) {
             toast.error(err.response?.data?.message || "Purchase failed");
         }
     };
+
+    // ... handleProxyUpload ...
+
+    // ... return JSX ...
+
+    {/* CONFIRM MODAL */ }
+    {
+        selectedServer && (
+            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-md">
+                    <h3 className="text-xl font-bold mb-4">Confirm Purchase</h3>
+                    <p className="text-slate-300 mb-6">
+                        Rent <strong>{selectedServer.provider} ({selectedServer.country})</strong>
+                        <div className="mt-4">
+                            <label className="block text-sm font-bold text-slate-500 mb-2">Duration</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    onClick={() => setRentDuration(1)}
+                                    className={`py-2 rounded-lg border ${rentDuration === 1 ? 'bg-cyan-900/50 border-cyan-500 text-cyan-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
+                                >
+                                    1 Hour
+                                </button>
+                                <button
+                                    onClick={() => setRentDuration(3)}
+                                    className={`py-2 rounded-lg border ${rentDuration === 3 ? 'bg-cyan-900/50 border-cyan-500 text-cyan-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
+                                >
+                                    3 Hours
+                                </button>
+                            </div>
+                        </div>
+                    </p>
+
+                    <div className="bg-slate-800 p-4 rounded-lg mb-6 flex justify-between items-center">
+                        <span>Total Cost:</span>
+                        <span className="text-xl font-bold text-green-400">{(selectedServer.price * rentDuration).toFixed(2)} USDT</span>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => setSelectedServer(null)}
+                            className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleRent}
+                            className="flex-1 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 font-bold flex justify-center items-center gap-2"
+                        >
+                            <ShieldCheck size={18} /> Purchase
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     const handleProxyUpload = (e) => {
         const file = e.target.files[0];
@@ -179,39 +237,6 @@ export default function ServerMarket({ user, onRent }) {
 
             </div>
 
-            {/* CONFIRM MODAL */}
-            {selectedServer && (
-                <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-                    <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-md">
-                        <h3 className="text-xl font-bold mb-4">Confirm Purchase</h3>
-                        <p className="text-slate-300 mb-6">
-                            Rent <strong>{selectedServer.provider} ({selectedServer.country})</strong> for <strong>1 Hour</strong>?
-                            <br />
-                            <span className="text-slate-500 text-sm">Amount will be deducted from your USDT balance.</span>
-                        </p>
-
-                        <div className="bg-slate-800 p-4 rounded-lg mb-6 flex justify-between items-center">
-                            <span>Total Cost:</span>
-                            <span className="text-xl font-bold text-green-400">{selectedServer.price} USDT</span>
-                        </div>
-
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setSelectedServer(null)}
-                                className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleRent}
-                                className="flex-1 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 font-bold flex justify-center items-center gap-2"
-                            >
-                                <ShieldCheck size={18} /> Purchase
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

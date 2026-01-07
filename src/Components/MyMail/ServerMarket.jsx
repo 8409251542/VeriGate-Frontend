@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from "react";
-import { Server, ShoppingCart, Clock, ShieldCheck, Globe, Upload } from "lucide-react";
+import { Server, ShoppingCart, Clock, ShieldCheck, Globe } from "lucide-react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import Papa from "papaparse";
 
-const API_URL = "http://localhost:5000/api/mymail"; // Adjust if port differs
+const API_URL = "https://verigate-backend.onrender.com/api/mymail";
 
 export default function ServerMarket({ user, onRent }) {
     const [available, setAvailable] = useState([]);
@@ -58,134 +56,65 @@ export default function ServerMarket({ user, onRent }) {
         }
     };
 
-    // ... handleProxyUpload ...
+    return (
+        <div className="p-6 text-slate-200">
+            {/* CONFIRM MODAL */}
+            {
+                selectedServer && (
+                    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                        <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-md">
+                            <h3 className="text-xl font-bold mb-4">Confirm Purchase</h3>
+                            <p className="text-slate-300 mb-6">
+                                Rent <strong>{selectedServer.provider} ({selectedServer.country})</strong>
+                                <div className="mt-4">
+                                    <label className="block text-sm font-bold text-slate-500 mb-2">Duration</label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button
+                                            onClick={() => setRentDuration(1)}
+                                            className={`py-2 rounded-lg border ${rentDuration === 1 ? 'bg-cyan-900/50 border-cyan-500 text-cyan-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
+                                        >
+                                            1 Hour
+                                        </button>
+                                        <button
+                                            onClick={() => setRentDuration(3)}
+                                            className={`py-2 rounded-lg border ${rentDuration === 3 ? 'bg-cyan-900/50 border-cyan-500 text-cyan-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
+                                        >
+                                            3 Hours
+                                        </button>
+                                    </div>
+                                </div>
+                            </p>
 
-    // ... return JSX ...
+                            <div className="bg-slate-800 p-4 rounded-lg mb-6 flex justify-between items-center">
+                                <span>Total Cost:</span>
+                                <span className="text-xl font-bold text-green-400">{(selectedServer.price * rentDuration).toFixed(2)} USDT</span>
+                            </div>
 
-    {/* CONFIRM MODAL */ }
-    {
-        selectedServer && (
-            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-                <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-md">
-                    <h3 className="text-xl font-bold mb-4">Confirm Purchase</h3>
-                    <p className="text-slate-300 mb-6">
-                        Rent <strong>{selectedServer.provider} ({selectedServer.country})</strong>
-                        <div className="mt-4">
-                            <label className="block text-sm font-bold text-slate-500 mb-2">Duration</label>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="flex gap-3">
                                 <button
-                                    onClick={() => setRentDuration(1)}
-                                    className={`py-2 rounded-lg border ${rentDuration === 1 ? 'bg-cyan-900/50 border-cyan-500 text-cyan-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
+                                    onClick={() => setSelectedServer(null)}
+                                    className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold"
                                 >
-                                    1 Hour
+                                    Cancel
                                 </button>
                                 <button
-                                    onClick={() => setRentDuration(3)}
-                                    className={`py-2 rounded-lg border ${rentDuration === 3 ? 'bg-cyan-900/50 border-cyan-500 text-cyan-400' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
+                                    onClick={handleRent}
+                                    className="flex-1 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 font-bold flex justify-center items-center gap-2"
                                 >
-                                    3 Hours
+                                    <ShieldCheck size={18} /> Purchase
                                 </button>
                             </div>
                         </div>
-                    </p>
-
-                    <div className="bg-slate-800 p-4 rounded-lg mb-6 flex justify-between items-center">
-                        <span>Total Cost:</span>
-                        <span className="text-xl font-bold text-green-400">{(selectedServer.price * rentDuration).toFixed(2)} USDT</span>
                     </div>
-
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => setSelectedServer(null)}
-                            className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleRent}
-                            className="flex-1 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 font-bold flex justify-center items-center gap-2"
-                        >
-                            <ShieldCheck size={18} /> Purchase
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
-    const handleProxyUpload = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        Papa.parse(file, {
-            header: false, // Webshare usually gives raw list like "ip:port:user:pass" 
-            skipEmptyLines: true,
-            complete: async (results) => {
-                // Parse Webshare format: "ip:port:username:password" (usually colon separated)
-                // Or if user downloaded CSV, it might have headers.
-                // Robust parser:
-                const proxies = [];
-                results.data.forEach(row => {
-                    let parts = [];
-                    if (Array.isArray(row)) {
-                        // If standard CSV parser split it by comma
-                        if (row.length === 1 && typeof row[0] === 'string' && row[0].includes(':')) {
-                            // "ip:port:user:pass" in a single cell
-                            parts = row[0].split(':');
-                        } else {
-                            parts = row;
-                        }
-                    } else if (typeof row === 'object') {
-                        // If header: true was used (but we set false above)
-                        parts = Object.values(row);
-                    }
-
-                    // Map parts to object
-                    // Assume order: IP, PORT, USER, PASS (Standard Webshare export)
-                    if (parts.length >= 4) {
-                        proxies.push({
-                            ip: parts[0].trim(),
-                            port: parts[1].trim(),
-                            username: parts[2].trim(),
-                            password: parts[3].trim(),
-                            provider: "Webshare",
-                            country: "Premium",
-                        });
-                    }
-                });
-
-                if (proxies.length === 0) return toast.error("No valid proxies found (Format: ip:port:user:pass)");
-
-                try {
-                    const res = await axios.post(`${API_URL}/admin/servers/bulk`, { servers: proxies });
-                    toast.success(res.data.message);
-                    fetchMarket(); // Refresh list
-                } catch (err) {
-                    toast.error("Upload failed");
-                }
+                )
             }
-        });
-    };
 
-    return (
-        <div className="p-6 text-slate-200">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                 {/* LEFT: MARKETPLACE */}
                 <div>
                     <h2 className="text-xl font-bold mb-4 flex items-center justify-between">
                         <span className="flex items-center gap-2"><Globe className="text-cyan-400" /> Global Server Market</span>
-                        <div className="relative">
-                            <input
-                                type="file"
-                                accept=".txt,.csv"
-                                onChange={handleProxyUpload}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            />
-                            <button className="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
-                                <Upload size={14} /> Import List
-                            </button>
-                        </div>
                     </h2>
                     <div className="space-y-3">
                         {available.map(srv => (

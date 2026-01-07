@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Server, Plus, Trash2, Shield, Globe } from "lucide-react";
+import Papa from "papaparse";
+import { Server, Plus, Trash2, Shield, Globe, Upload } from "lucide-react";
 
 const API_URL = "https://verigate-backend.onrender.com/api/mymail/admin/servers"; // Admin endpoints
 const PUBLIC_URL = "https://verigate-backend.onrender.com/api/mymail/servers/available";
@@ -62,6 +62,52 @@ export default function AdminServerManager() {
         }
     };
 
+    const handleProxyUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        Papa.parse(file, {
+            header: false,
+            skipEmptyLines: true,
+            complete: async (results) => {
+                const proxies = [];
+                results.data.forEach(row => {
+                    let parts = [];
+                    if (Array.isArray(row)) {
+                        if (row.length === 1 && typeof row[0] === 'string' && row[0].includes(':')) {
+                            parts = row[0].split(':');
+                        } else {
+                            parts = row;
+                        }
+                    } else if (typeof row === 'object') {
+                        parts = Object.values(row);
+                    }
+
+                    if (parts.length >= 2) { // Minimal validation
+                        proxies.push({
+                            ip: parts[0]?.trim(),
+                            port: parts[1]?.trim(),
+                            username: parts[2]?.trim() || "",
+                            password: parts[3]?.trim() || "",
+                            provider: "Webshare",
+                            country: "Premium",
+                        });
+                    }
+                });
+
+                if (proxies.length === 0) return toast.error("No valid proxies found");
+
+                try {
+                    const res = await axios.post(`${API_URL}/bulk`, { servers: proxies });
+                    toast.success(res.data.message);
+                    fetchServers();
+                } catch (err) {
+                    toast.error("Bulk upload failed");
+                }
+            }
+        });
+    };
+
     return (
         <div className="p-8 max-w-6xl mx-auto">
             <div className="mb-8 flex items-center gap-3">
@@ -75,7 +121,6 @@ export default function AdminServerManager() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
                 {/* LEFT: ADD FORM */}
                 <div className="lg:col-span-1">
                     <div className="bg-white rounded-2xl shadow-xl p-6 border border-slate-100 sticky top-6">
@@ -132,8 +177,23 @@ export default function AdminServerManager() {
                 <div className="lg:col-span-2 space-y-4">
                     <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-100">
                         <div className="font-bold text-slate-600">Total Inventory: {servers.length}</div>
-                        <button onClick={fetchServers} className="text-sm text-blue-500 hover:underline">Refresh</button>
+                        <div className="flex items-center gap-3">
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept=".txt,.csv"
+                                    onChange={handleProxyUpload}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                />
+                                <button className="bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-2">
+                                    <Upload size={14} /> Import List
+                                </button>
+                            </div>
+                            <button onClick={fetchServers} className="text-sm text-blue-500 hover:underline">Refresh</button>
+                        </div>
                     </div>
+
+                    {/* ... list ... */}
 
                     {servers.map((s) => (
                         <div key={s.id} className="bg-white p-5 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow flex justify-between items-center group">

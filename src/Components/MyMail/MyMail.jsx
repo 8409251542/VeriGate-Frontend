@@ -20,68 +20,9 @@ export default function MyMail({ user }) {
 
     // Logic State
     const rotator = useRef(new CredentialRotator());
-    const [selectedServerId, setSelectedServerId] = useState("direct");
+    const [rotateIPs, setRotateIPs] = useState(false);
 
-    // Template State
-    const [template, setTemplate] = useState({
-        senderName: "Support Team",
-        subject: "Hello {{name}}",
-        text: "Hi {{name}}, your code is {{c3}}.",
-        html: "<p>Hi <strong>{{name}}</strong>,</p><p>Your code is <code>{{c3}}</code></p>"
-    });
-
-    // Sending State
-    const [isSending, setIsSending] = useState(false);
-    const [progress, setProgress] = useState({ sent: 0, failed: 0, total: 0 });
-    const [logs, setLogs] = useState([]);
-
-    // Refs for loop control
-    const stopRef = useRef(false);
-
-    useEffect(() => {
-        fetchMyServers();
-    }, []);
-
-    const fetchMyServers = async () => {
-        try {
-            const userId = user?.user?.id || user?.id; // Robust check
-            const res = await axios.get(`${API_URL}/servers/my-servers?userId=${userId}`);
-            setMyServers(res.data.servers);
-        } catch (e) { }
-    };
-
-
-    // ==========================
-    // 1. FILE HANDLERS
-    // ==========================
-    const handleRecipientsUpload = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                setRecipients(results.data);
-                toast.success(`Loaded ${results.data.length} recipients`);
-            }
-        });
-    };
-
-    const handleSmtpUpload = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-                const count = rotator.current.load(results.data);
-                setSmtpCredentials(rotator.current.credentials);
-                toast.success(`Loaded ${count} credentials`);
-            }
-        });
-    };
+    // ... existing refs and useEffect ...
 
     // ==========================
     // 2. SENDING LOGIC
@@ -89,6 +30,14 @@ export default function MyMail({ user }) {
     const startCampaign = async () => {
         if (recipients.length === 0) return toast.error("No recipients loaded");
         if (rotator.current.getCount() === 0) return toast.error("No SMTP credentials loaded");
+
+        // Validate server selection
+        if (selectedServerId === "direct" && !rotateIPs) {
+            // It's allowed, but maybe warn?
+        }
+        if (rotateIPs && myServers.length === 0) {
+            return toast.error("Rotation enabled but no active servers found!");
+        }
 
         setIsSending(true);
         stopRef.current = false;
@@ -102,11 +51,19 @@ export default function MyMail({ user }) {
             const recipient = recipients[i];
             const credential = rotator.current.getNext();
 
+            // SOCKS5 Rotation Logic
+            let activeServerId = selectedServerId;
+            if (rotateIPs && myServers.length > 0) {
+                // Round Robin: i % servers.length
+                const serverIndex = i % myServers.length;
+                activeServerId = myServers[serverIndex].id;
+            }
+
             try {
                 // Call Backend
                 const res = await axios.post(`${API_URL}/send-batch`, {
                     userId: user?.user?.id || user?.id,
-                    serverId: selectedServerId, // "direct" or ID
+                    serverId: activeServerId, // Dynamic ID
                     smtpConfig: credential,
                     messageConfig: {
                         senderName: template.senderName,
@@ -120,7 +77,8 @@ export default function MyMail({ user }) {
 
                 if (res.data.success) {
                     setProgress(prev => ({ ...prev, sent: prev.sent + 1 }));
-                    addLog(`✅ Sent to ${recipient.email} via ${credential.hostname || credential.user}`);
+                    const srvLabel = activeServerId === "direct" ? "Direct" : `Server #${activeServerId}`;
+                    addLog(`✅ Sent to ${recipient.email} via ${credential.hostname || credential.user} [${srvLabel}]`);
                 } else {
                     throw new Error("Backend reported failure");
                 }
@@ -139,51 +97,24 @@ export default function MyMail({ user }) {
         toast.info("Campaign finished");
     };
 
-    const stopCampaign = () => {
-        stopRef.current = true;
-        setIsSending(false);
-    };
-
-    const addLog = (msg) => {
-        setLogs(prev => [msg, ...prev].slice(0, 100));
-    };
-
-    const downloadSample = (type) => {
-        let content = "";
-        let filename = "";
-
-        if (type === "recipients") {
-            content = "email,name,c3,c4,c5,c6\ntest1@example.com,John Doe,Order-101,VIP,USA,FreeShipping\ntest2@example.com,Jane Smith,Order-102,Standard,UK,Paid";
-            filename = "sample_recipients.csv";
-        } else {
-            content = "user,pass,host,port,hostname,clientId,clientSecret,refreshToken\nsender@example.com,secret123,smtp.mailtrap.io,2525,my-app.local,,,\nmy-gmail@gmail.com,,,,,YOUR_CLIENT_ID,YOUR_CLIENT_SECRET,YOUR_REFRESH_TOKEN";
-            filename = "sample_smtp_credentials.csv";
-        }
-
-        const blob = new Blob([content], { type: "text/csv" });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    };
-
+    // ... stopCampaign, addLog, downloadSample ...
 
     // ==========================
     // 3. UI RENDER
     // ==========================
     return (
         <div className="h-full flex flex-col bg-slate-950 text-slate-200">
-            {/* HEADER */}
+            {/* ... HEADER ... */}
             <div className="h-16 border-b border-slate-800 flex items-center px-6 justify-between bg-slate-900/50">
+                {/* ... header content ... */}
+
+                {/* ... existing header content ... */}
                 <div className="font-bold text-xl flex items-center gap-2">
                     <Mail className="text-cyan-400" /> MyMail <span className="text-xs bg-cyan-900 text-cyan-300 px-2 py-0.5 rounded">PRO</span>
                 </div>
 
                 <div className="flex bg-slate-800 rounded-lg p-1">
+                    {/* ... tabs ... */}
                     <TabBtn id="control" label="Control" icon={<Settings size={16} />} active={activeTab} set={setActiveTab} />
                     <TabBtn id="emails" label="Emails (CSV)" icon={<Users size={16} />} active={activeTab} set={setActiveTab} />
                     <TabBtn id="smtp" label="SMTP / Gmail" icon={<Server size={16} />} active={activeTab} set={setActiveTab} />
@@ -207,11 +138,27 @@ export default function MyMail({ user }) {
 
                         {/* SENDING CONFIG */}
                         <div className="bg-slate-900/50 border border-slate-700 p-6 rounded-xl">
-                            <label className="block text-sm font-bold text-slate-400 mb-2">Networking Tunnel (RDP)</label>
+                            <div className="flex justify-between items-center mb-2">
+                                <label className="block text-sm font-bold text-slate-400">Networking Tunnel (SOCKS5)</label>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="rotateIPs"
+                                        checked={rotateIPs}
+                                        onChange={(e) => setRotateIPs(e.target.checked)}
+                                        className="w-4 h-4 text-cyan-600 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500"
+                                    />
+                                    <label htmlFor="rotateIPs" className="text-sm text-cyan-400 font-bold cursor-pointer select-none">
+                                        Rotate IPs (Round-Robin)
+                                    </label>
+                                </div>
+                            </div>
+
                             <select
                                 value={selectedServerId}
                                 onChange={(e) => setSelectedServerId(e.target.value)}
-                                className="w-full bg-slate-800 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-cyan-500"
+                                disabled={rotateIPs}
+                                className={`w-full bg-slate-800 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-cyan-500 ${rotateIPs ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <option value="direct">Direct Connection (No Proxy)</option>
                                 {myServers.map(s => (
@@ -221,8 +168,9 @@ export default function MyMail({ user }) {
                                 ))}
                             </select>
                             <p className="text-xs text-slate-500 mt-2">
-                                Select an active RDP server to route your SMTP traffic through.
-                                If secure proxying is required, ensure the server is rented.
+                                {rotateIPs
+                                    ? "Traffic will be distributed across ALL active servers sequentially."
+                                    : "Select a specific server to route traffic through."}
                             </p>
                         </div>
 

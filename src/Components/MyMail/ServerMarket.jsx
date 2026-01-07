@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from "react";
-import { Server, ShoppingCart, Clock, ShieldCheck, Globe } from "lucide-react";
+import { Server, ShoppingCart, Clock, ShieldCheck, Globe, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import Papa from "papaparse";
 
 const API_URL = "http://localhost:5000/api/mymail"; // Adjust if port differs
 
@@ -54,14 +55,79 @@ export default function ServerMarket({ user, onRent }) {
         }
     };
 
+    const handleProxyUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        Papa.parse(file, {
+            header: false, // Webshare usually gives raw list like "ip:port:user:pass" 
+            skipEmptyLines: true,
+            complete: async (results) => {
+                // Parse Webshare format: "ip:port:username:password" (usually colon separated)
+                // Or if user downloaded CSV, it might have headers.
+                // Robust parser:
+                const proxies = [];
+                results.data.forEach(row => {
+                    let parts = [];
+                    if (Array.isArray(row)) {
+                        // If standard CSV parser split it by comma
+                        if (row.length === 1 && typeof row[0] === 'string' && row[0].includes(':')) {
+                            // "ip:port:user:pass" in a single cell
+                            parts = row[0].split(':');
+                        } else {
+                            parts = row;
+                        }
+                    } else if (typeof row === 'object') {
+                        // If header: true was used (but we set false above)
+                        parts = Object.values(row);
+                    }
+
+                    // Map parts to object
+                    // Assume order: IP, PORT, USER, PASS (Standard Webshare export)
+                    if (parts.length >= 4) {
+                        proxies.push({
+                            ip: parts[0].trim(),
+                            port: parts[1].trim(),
+                            username: parts[2].trim(),
+                            password: parts[3].trim(),
+                            provider: "Webshare",
+                            country: "Premium",
+                        });
+                    }
+                });
+
+                if (proxies.length === 0) return toast.error("No valid proxies found (Format: ip:port:user:pass)");
+
+                try {
+                    const res = await axios.post(`${API_URL}/admin/servers/bulk`, { servers: proxies });
+                    toast.success(res.data.message);
+                    fetchMarket(); // Refresh list
+                } catch (err) {
+                    toast.error("Upload failed");
+                }
+            }
+        });
+    };
+
     return (
         <div className="p-6 text-slate-200">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                 {/* LEFT: MARKETPLACE */}
                 <div>
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                        <Globe className="text-cyan-400" /> Global Server Market
+                    <h2 className="text-xl font-bold mb-4 flex items-center justify-between">
+                        <span className="flex items-center gap-2"><Globe className="text-cyan-400" /> Global Server Market</span>
+                        <div className="relative">
+                            <input
+                                type="file"
+                                accept=".txt,.csv"
+                                onChange={handleProxyUpload}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            />
+                            <button className="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
+                                <Upload size={14} /> Import List
+                            </button>
+                        </div>
                     </h2>
                     <div className="space-y-3">
                         {available.map(srv => (

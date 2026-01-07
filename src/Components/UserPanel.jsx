@@ -101,8 +101,13 @@ export default function UserPanel({ user, setUser }) {
                   {item.icon}
                 </span>
                 {sidebarOpen && (
-                  <span className="font-medium text-sm whitespace-nowrap">
+                  <span className="font-medium text-sm whitespace-nowrap flex items-center gap-2">
                     {item.label}
+                    {item.id === "ImageTools" && (
+                      <span className="px-1.5 py-0.5 bg-gradient-to-r from-red-500 to-pink-500 text-[10px] font-bold text-white rounded-md animate-pulse">
+                        NEW
+                      </span>
+                    )}
                   </span>
                 )}
                 {sidebarOpen && isActive && (
@@ -160,7 +165,14 @@ export default function UserPanel({ user, setUser }) {
                     }`}
                 >
                   {item.icon}
-                  <span className="font-medium">{item.label}</span>
+                  <span className="font-medium flex items-center gap-2">
+                    {item.label}
+                    {item.id === "ImageTools" && (
+                      <span className="px-1.5 py-0.5 bg-gradient-to-r from-red-500 to-pink-500 text-[10px] font-bold text-white rounded-md animate-pulse">
+                        NEW
+                      </span>
+                    )}
+                  </span>
                 </button>
               ))}
               <button

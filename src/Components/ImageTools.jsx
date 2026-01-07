@@ -19,6 +19,8 @@ export default function ImageTools() {
         { name: "Meta Receipt", url: `${API_BASE}/api/tools/meta_receipt.html` },
         { name: "Nurton", url: `${API_BASE}/api/tools/nurton.html` },
         { name: "PP Tool", url: `${API_BASE}/api/tools/pp.html` },
+        { name: "IOS New", url: `${API_BASE}/api/tools/IOS new.html`, new: true },
+        { name: "IOS Res", url: `${API_BASE}/api/tools/ios new res.html`, new: true },
     ];
 
     // Fetch initial balance
@@ -108,12 +110,17 @@ export default function ImageTools() {
                     <button
                         key={index}
                         onClick={() => setActiveTab(index)}
-                        className={`px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap ${activeTab === index
+                        className={`px-6 py-3 rounded-xl font-medium transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === index
                             ? "bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20"
                             : "bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800"
                             }`}
                     >
                         {tool.name}
+                        {tool.new && (
+                            <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded animate-pulse">
+                                NEW
+                            </span>
+                        )}
                     </button>
                 ))}
             </div>

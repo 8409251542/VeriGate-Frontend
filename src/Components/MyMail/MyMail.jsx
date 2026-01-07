@@ -8,7 +8,7 @@ import axios from "axios";
 import CredentialRotator from "./Logic/CredentialRotator";
 import ServerMarket from "./ServerMarket";
 
-const API_URL = "http://localhost:5000/api/mymail";
+const API_URL = "https://verigate-backend.onrender.com/api/mymail";
 
 export default function MyMail({ user }) {
     const [activeTab, setActiveTab] = useState("control"); // control, emails, smtp, template, market
@@ -41,7 +41,7 @@ export default function MyMail({ user }) {
 
     useEffect(() => {
         fetchMyServers();
-    }, []);
+    }, [activeTab]);
 
     const fetchMyServers = async () => {
         try {
@@ -124,7 +124,85 @@ export default function MyMail({ user }) {
         toast.info("Campaign finished");
     };
 
-    // ... stopCampaign, addLog, downloadSample ...
+    const stopCampaign = () => {
+        stopRef.current = true;
+        setIsSending(false);
+        toast.info("Stopping campaign...");
+    };
+
+    const addLog = (msg) => {
+        setLogs(prev => [msg, ...prev].slice(0, 500));
+    };
+
+    const downloadSample = (type) => {
+        let csvContent = "";
+        if (type === "recipients") {
+            csvContent = "email,name,c3,c4,c5\nuser1@example.com,John,123,ABC,Test";
+        } else {
+            csvContent = "user,pass,host,port,type\nsender@gmail.com,apppass,smtp.gmail.com,587,smtp\nclient-id,client-secret,refresh-token,,gmail_api";
+        }
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${type}_sample.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleRecipientsUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+                if (results.data && results.data.length > 0) {
+                    // Validate header - robust check
+                    const firstRow = results.data[0];
+                    const hasEmail = Object.keys(firstRow).some(k => k.toLowerCase() === 'email');
+
+                    if (!hasEmail) {
+                        return toast.error("CSV must contain an 'email' column");
+                    }
+                    setRecipients(results.data);
+                    toast.success(`Loaded ${results.data.length} recipients`);
+                }
+            },
+            error: (err) => {
+                toast.error("Failed to parse CSV");
+            }
+        });
+    };
+
+    const handleSmtpUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+                if (results.data && results.data.length > 0) {
+                    const newCreds = results.data.map(row => {
+                        // Auto-detect type
+                        if (row.clientId || row.refreshToken) {
+                            return { type: 'gmail_api', ...row };
+                        } else {
+                            return { type: 'smtp', ...row };
+                        }
+                    });
+                    setSmtpCredentials(newCreds);
+                    // Also load into rotator
+                    rotator.current.load(newCreds);
+                    toast.success(`Loaded ${newCreds.length} senders`);
+                }
+            },
+            error: (err) => {
+                toast.error("Failed to parse CSV");
+            }
+        });
+    };
 
     // ==========================
     // 3. UI RENDER
@@ -151,7 +229,7 @@ export default function MyMail({ user }) {
             </div>
 
             {/* CONTENT */}
-            <div className="flex-1 overflow-hidden p-6 relative">
+            <div className="flex-1 overflow-y-auto p-6 relative">
 
                 {/* TAB: CONTROL */}
                 {activeTab === "control" && (
@@ -160,45 +238,29 @@ export default function MyMail({ user }) {
                         <div className="grid grid-cols-3 gap-6">
                             <StatCard label="Recipients" val={recipients.length} color="text-blue-400" />
                             <StatCard label="Senders" val={rotator.current.getCount()} color="text-purple-400" />
-                            <StatCard label="Servers" val={myServers.length} color="text-green-400" />
+                            <StatCard label="Active IPs" val={myServers.length} color="text-green-400" />
                         </div>
 
-                        {/* SENDING CONFIG */}
-                        <div className="bg-slate-900/50 border border-slate-700 p-6 rounded-xl">
-                            <div className="flex justify-between items-center mb-2">
-                                <label className="block text-sm font-bold text-slate-400">Networking Tunnel (SOCKS5)</label>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        id="rotateIPs"
-                                        checked={rotateIPs}
-                                        onChange={(e) => setRotateIPs(e.target.checked)}
-                                        className="w-4 h-4 text-cyan-600 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500"
-                                    />
-                                    <label htmlFor="rotateIPs" className="text-sm text-cyan-400 font-bold cursor-pointer select-none">
-                                        Rotate IPs (Round-Robin)
-                                    </label>
-                                </div>
+                        {/* SENDING CONFIG (Simplified) */}
+                        <div className="bg-slate-900/50 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
+                            <div>
+                                <h3 className="font-bold text-slate-200">Proxy Rotation</h3>
+                                <p className="text-xs text-slate-500">
+                                    {myServers.length > 0
+                                        ? `Routing through ${myServers.length} active servers.`
+                                        : "Direct connection (No proxies active)."}
+                                </p>
                             </div>
 
-                            <select
-                                value={selectedServerId}
-                                onChange={(e) => setSelectedServerId(e.target.value)}
-                                disabled={rotateIPs}
-                                className={`w-full bg-slate-800 border-none rounded-lg p-3 text-white focus:ring-2 focus:ring-cyan-500 ${rotateIPs ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            >
-                                <option value="direct">Direct Connection (No Proxy)</option>
-                                {myServers.map(s => (
-                                    <option key={s.id} value={s.id}>
-                                        Server {s.id} - {s.ip} ({s.username})
-                                    </option>
-                                ))}
-                            </select>
-                            <p className="text-xs text-slate-500 mt-2">
-                                {rotateIPs
-                                    ? "Traffic will be distributed across ALL active servers sequentially."
-                                    : "Select a specific server to route traffic through."}
-                            </p>
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm text-slate-400">Enable Rotation</label>
+                                <input
+                                    type="checkbox"
+                                    checked={rotateIPs}
+                                    onChange={(e) => setRotateIPs(e.target.checked)}
+                                    className="scale-125 accent-cyan-500"
+                                />
+                            </div>
                         </div>
 
                         {/* ACTION */}

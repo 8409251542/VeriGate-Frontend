@@ -10,6 +10,7 @@ import InvoiceGenerator from "./InvoiceGeneretor";
 import ImageTools from "./ImageTools";
 import MyMail from "./MyMail/MyMail";
 import ChangePassword from "./ChangePassword";
+import BulkAppDetection from "./BulkAppDetection";
 
 export default function UserPanel({ user, setUser }) {
   const [activePage, setActivePage] = useState("dashboard");
@@ -28,6 +29,7 @@ export default function UserPanel({ user, setUser }) {
     { id: "UsdtToken", label: "Crypto Token", icon: <CreditCard size={20} /> },
     { id: "ImageTools", label: "AI Image Tools", icon: <Zap size={20} /> },
     { id: "MyMail", label: "MyMail PRO", icon: <Mail size={20} /> },
+    { id: "BulkAppDetection", label: "Bulk App Detection", icon: <Zap size={20} /> },
     { id: "changePassword", label: "Change Password", icon: <Zap size={20} /> },
   ];
 
@@ -47,6 +49,8 @@ export default function UserPanel({ user, setUser }) {
         return <ImageTools />;
       case "MyMail":
         return <MyMail user={user} />;
+      case "BulkAppDetection":
+        return <BulkAppDetection user={user} />;
       case "changePassword":
         return <ChangePassword />;
       case "dashboard":

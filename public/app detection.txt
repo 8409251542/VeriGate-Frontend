@@ -1,0 +1,173 @@
+INTERFACE DOCUMENT
+1.1	INTERFACE UPLOAD 	1
+1.2	INTERFACE QUERY 	2
+1.3	INTERFACE DOWNLOAD 	3
+1.4	BALANCE	4
+
+
+1.1	Interface Upload
+Interface Instruction
+url	http://i.ihmjc.com/api/UploadDx.ashx
+Protocal	http
+Request type	post
+ Request Instruction
+Key	Required	Type	Description
+account	Yes	string	Account
+pass	Yes	string	Password
+file	Yes	file	Upload file（each number per line； must have country code； only one country one time）
+type	Yes	string	Fixed Values for App Detection 
+Viber To 7A4A66DB1B7B7777
+Zalo To 431039DC0568D3FD
+Botim To E6C1CD22E635B389
+Momo to 8F9C50C219F0A753
+Signal to 34BAB86C9897A388
+Skype to 05BB28449747591E
+Snapchat to AB56BA99E602D53E
+Line to 28D47F60DA5B52FC
+LinkedIn to 479294A5E232C768
+Amazon to 43225FC563E61CCD
+Ws to DE8E6A1F3499B973
+Fb to 4C0F720F3312ED11
+Tg to C117542A589737A2
+Tk to 15163739B7ABF4A0
+Vk to 06B4A8553F45A5AA
+Ios(ss) to 5414E9691D381661
+Ios(hc) to A6A5AD4FE3799ACC
+Twitter to 37793CA575B1A088
+Band to 67E105CEE89D0630
+Rcs to 6A5304366A4FA7DA
+Ins to 2A5431403A180C3F
+Moniepoint to 63043440C7426539
+Coupang to 0C341C9FBB400AED
+Line(TW)to BE0DDD98ADE259BA
+Mint to 935070DD7AD94F1C
+FBMessage to B0EDB1FC825A82DC
+Microsoft to 52E03A1B05202DD3
+Paytm to F2857CAF00DE8B41
+Hh to FF95420F573EE18C
+Sideline to CEB40A1B4CB1B53B
+check24 to D87676F4886C51B7
+Gate to E35ACFDF9D3818E4
+RummyCircle to F99AC658445EF4AA
+Cian to 171AB1A35B96A224
+Htx to 601542C48B65984C
+Magicbricks to AE14669246504
+Flipkart to 7075F7597A20271
+Binance to C45C6F4056742B7A
+Bybit to 45A1AB2D8F5DC36E
+CoinW to 273656BF37FD74D2
+Kucoin to 6B1755703E4CCA29
+OKX to DCA6092CABB61351
+Xt to 0B770E957AA8BC66
+Bitmart to C240330073B15769
+WS Business to 7C116CFB603BC227
+DHL to 8758259A688D28E8
+Shopee to 0CD75C4F6C7D412F
+GroupMe to FDBF47DB6455672A
+
+
+
+
+ Return Instruction
+Key	Type	Description
+RES	string	status code 100 means success; Otherwise failure
+ERR	string	Description
+DATA	{}	Data set,RES=100 will return
+DATA.sendID	string	Upload ID
+Example
+{
+    "RES":”100”,
+    "ERR":"",
+    "DATA":{
+        "sendID":"10000"
+    }
+}
+
+1.2	 Interface Query 
+In order to prevent excessive pressure on the server, the query interval is recommended to query more than 10s once
+
+Interface Description
+url	http://i.ihmjc.com/api/Query.ashx
+Protocols	http
+Request Way	post
+
+Request for clarification
+
+Key	Required 	Type	Description
+account	Yes 	string	Account
+pass	Yes	string	Password
+sendID	Yes 	string	Upload ID
+
+
+Return description
+
+Key	Type	Description
+RES	string	Status Code: 100 for success; others failed
+ERR	string	Description
+DATA	{}	Data set, RES=100 will return
+DATA.status	string	2 means testing is complete, others are not
+DATA.number2	string	Quantity of activated
+DATA.number3	string	Quantity of unregistered
+
+Example
+{
+    "RES":”100”,
+    "ERR":"",
+    "DATA":{
+         "status":"2",
+"number2":"2",
+"number3":"2"
+
+    }
+}
+
+1.3	Download
+When the detection status = 2, you can initiate a download request, note that the detection results will only be retained for 7 days, after the completion of the test, please download in a timely manner!
+
+API Description
+url	http://i.ihmjc.com/api/Download.ashx
+Protocols	http
+Request Way	post
+
+Request Description
+Key	Required	Type	Description
+account	Yes	string	Account
+pass	Yes	string	Password
+sendID	Yes	string	Upload ID
+type	Yes	int	Type of file to be downloaded
+1, for download zip 
+2, for activated file 
+3, for unregistered file
+
+
+1.4	Balance inquiry
+Interface Description
+url	http://i.ihmjc.com/api/Balance.ashx
+Agreement	http
+Request Way	post
+
+Request for clarification
+Key	Required	Type	Description
+account	Yes	string	Account
+pass	Yes	string	Passwords
+
+
+
+Return description
+Key	Type	Description
+RES	string	Status code 100 for success; others fail
+ERR	string	Description
+DATA	{}	Data set, RES=100 will return
+DATA.balance1	int	Recharge Points Balance
+DATA.balance2	int	Bonus Points Balance
+Example
+{
+    "RES":”100”,
+    "ERR":"",
+    "DATA":{
+          "balance1":"1000",
+"balance2":"0"
+    }
+}
+
+  

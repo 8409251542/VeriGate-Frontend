@@ -8,7 +8,8 @@ import axios from "axios";
 import CredentialRotator from "./Logic/CredentialRotator";
 import ServerMarket from "./ServerMarket";
 
-const API_URL = "https://verigate-backend.onrender.com/api/mymail";
+// const API_URL = "https://verigate-backend.onrender.com/api/mymail";
+const API_URL = "http://localhost:5000/api/mymail";
 
 export default function MyMail({ user }) {
     const [activeTab, setActiveTab] = useState("control"); // control, emails, smtp, template, market
@@ -113,7 +114,9 @@ export default function MyMail({ user }) {
             } catch (err) {
                 console.error(err);
                 setProgress(prev => ({ ...prev, failed: prev.failed + 1 }));
-                addLog(`❌ Failed ${recipient.email}: ${err.message}`);
+
+                const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || "Unknown Error";
+                addLog(`❌ Failed ${recipient.email}: ${errorMsg}`);
             }
 
             // Small delay to prevent UI freeze

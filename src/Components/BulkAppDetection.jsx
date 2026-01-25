@@ -18,7 +18,8 @@ const BulkAppDetection = () => { // Removed user prop to rely on localStorage li
     const COST_PER_10K = 10;
 
     // API BASE
-    const API_BASE = "http://localhost:5000"; // Local backend for now
+    const API_BASE = "https://verigate-backend.onrender.com";
+    // Local backend for now
 
     const APP_OPTIONS = [
         "Viber", "Zalo", "Botim", "Momo", "Signal", "Skype", "Snapchat", "Line",

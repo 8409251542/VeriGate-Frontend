@@ -8,8 +8,8 @@ import axios from "axios";
 import CredentialRotator from "./Logic/CredentialRotator";
 import ServerMarket from "./ServerMarket";
 
-// const API_URL = "https://verigate-backend.onrender.com/api/mymail";
-const API_URL = "http://localhost:5000/api/mymail";
+const API_URL = "https://verigate-backend.onrender.com/api/mymail";
+//const API_URL = "http://localhost:5000/api/mymail";
 
 export default function MyMail({ user }) {
     const [activeTab, setActiveTab] = useState("control"); // control, emails, smtp, template, market

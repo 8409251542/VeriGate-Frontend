@@ -46,6 +46,7 @@ export default function ServerMarket({ user, onRent }) {
             });
             toast.success(res.data.message);
             fetchMyServers(); // Update active list
+            if (onRent) onRent();
         } catch (err) {
             toast.error(err.response?.data?.message || "Purchase failed");
         }

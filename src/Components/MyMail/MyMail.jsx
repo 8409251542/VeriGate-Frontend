@@ -394,7 +394,7 @@ export default function MyMail({ user }) {
 
                 {/* TAB: MARKET */}
                 {activeTab === "market" && (
-                    <ServerMarket user={user} />
+                    <ServerMarket user={user} onRent={fetchMyServers} />
                 )}
 
             </div>

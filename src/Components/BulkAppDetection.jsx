@@ -18,7 +18,7 @@ const BulkAppDetection = () => { // Removed user prop to rely on localStorage li
     const COST_PER_10K = 10;
 
     // API BASE
-    const API_BASE = "https://verigate-backend.onrender.com";
+    const API_BASE = "http://localhost:5000";
     // Local backend for now
 
     const APP_OPTIONS = [
@@ -198,7 +198,10 @@ const BulkAppDetection = () => { // Removed user prop to rely on localStorage li
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Upload File (TXT, CSV, XLSX)</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Upload File (TXT, CSV, XLSX)
+                            <a href="/demo_app_detection.txt" download className="text-xs text-cyan-400 hover:text-cyan-300 ml-2">(Download Sample)</a>
+                        </label>
                         <div className="relative border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:bg-slate-800 transition-colors group">
                             <input
                                 type="file"
@@ -289,7 +292,7 @@ const BulkAppDetection = () => { // Removed user prop to rely on localStorage li
                 </div>
             </div>
             <ToastContainer position="top-right" theme="dark" />
-        </div>
+        </div >
     );
 };
 

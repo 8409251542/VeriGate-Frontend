@@ -129,6 +129,23 @@ export default function AdminServerManager() {
                         </h2>
 
                         <form onSubmit={handleAdd} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setForm({ ...form, port: 1080, username: "", password: "", type: "proxy" })}
+                                    className={`p-3 rounded-lg border text-sm font-bold transition-all ${form.type !== 'agent' ? 'bg-slate-800 text-white border-slate-800 ring-2 ring-slate-200' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
+                                >
+                                    Proxy Server
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setForm({ ...form, port: 3000, username: "admin", password: "", type: "agent" })}
+                                    className={`p-3 rounded-lg border text-sm font-bold transition-all ${form.type === 'agent' ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-100' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
+                                >
+                                    RDP Agent
+                                </button>
+                            </div>
+
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">IP Address</label>
                                 <input required placeholder="1.2.3.4" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 font-mono text-sm" value={form.ip} onChange={e => setForm({ ...form, ip: e.target.value })} />
@@ -138,6 +155,7 @@ export default function AdminServerManager() {
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Port</label>
                                     <input type="number" required className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 font-mono text-sm" value={form.port} onChange={e => setForm({ ...form, port: e.target.value })} />
+                                    {form.type === 'agent' && <div className="text-[10px] text-indigo-500 font-medium mt-1">Must be 3000 for Agent</div>}
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Price (USDT)</label>
@@ -147,12 +165,12 @@ export default function AdminServerManager() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Proxy User</label>
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{form.type === 'agent' ? 'Agent User' : 'Proxy User'}</label>
                                     <input placeholder="Optional" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Proxy Pass</label>
-                                    <input placeholder="Optional" className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
+                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{form.type === 'agent' ? 'Secret Key' : 'Proxy Pass'}</label>
+                                    <input placeholder={form.type === 'agent' ? "Agent Secret" : "Optional"} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
                                 </div>
                             </div>
 

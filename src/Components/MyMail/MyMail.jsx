@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import CredentialRotator from "./Logic/CredentialRotator";
 import ServerMarket from "./ServerMarket";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const API_URL = "https://verigate-backend.onrender.com/api/mymail";
 //const API_URL = "http://localhost:5000/api/mymail";
@@ -31,6 +33,65 @@ export default function MyMail({ user }) {
         text: "Hi {{name}}, your code is {{c3}}.",
         html: "<p>Hi <strong>{{name}}</strong>,</p><p>Your code is <code>{{c3}}</code></p>"
     });
+    const [attachments, setAttachments] = useState([]); // Array of { filename, content, encoding: 'base64' }
+    const [pdfHtml, setPdfHtml] = useState(""); // State for PDF HTML input
+
+    // generate PDF
+    const generatePdf = async () => {
+        if (!pdfHtml) return;
+        const target = document.getElementById('pdf-render-target');
+        target.innerHTML = pdfHtml;
+
+        try {
+            const canvas = await html2canvas(target, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+            // Get base64 without prefix
+            const base64String = pdf.output('datauristring').split(',')[1];
+
+            const newFile = {
+                filename: `generated-${Date.now()}.pdf`,
+                content: base64String,
+                encoding: 'base64'
+            };
+
+            setAttachments(prev => [...prev, newFile]);
+            toast.success("PDF generated and attached!");
+            setPdfHtml(""); // clear input
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to generate PDF");
+        }
+        target.innerHTML = ""; // cleanup
+    };
+
+    // Attachment Handler
+    const handleAttachmentUpload = async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        const newAttachments = [];
+        for (const file of files) {
+            const base64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result.split(',')[1]); // Remove data:application/pdf;base64, prefix
+                reader.readAsDataURL(file);
+            });
+            newAttachments.push({
+                filename: file.name,
+                content: base64,
+                encoding: 'base64'
+            });
+        }
+        setAttachments(prev => [...prev, ...newAttachments]);
+        toast.success(`Added ${files.length} attachment(s)`);
+    };
 
     // Sending State
     const [isSending, setIsSending] = useState(false);
@@ -98,6 +159,7 @@ export default function MyMail({ user }) {
                         subject: template.subject, // Backend handles tags
                         text: template.text,
                         html: template.html,
+                        attachments: attachments, // Pass base64 files
                         headers: {} // TODO: Custom headers UI
                     },
                     recipient: recipient
@@ -389,6 +451,55 @@ export default function MyMail({ user }) {
                                 <textarea className="flex-1 w-full bg-slate-900 border border-slate-700 rounded p-3 font-mono text-sm" value={template.html} onChange={e => setTemplate({ ...template, html: e.target.value })} />
                             </div>
                         </div>
+
+
+                        {/* HTML TO PDF GENERATION */}
+                        <div className="bg-slate-900 border border-slate-700 rounded-xl p-4 mb-4">
+                            <h4 className="font-bold mb-3 flex items-center gap-2">
+                                <FileText size={16} /> Generate PDF from HTML
+                            </h4>
+                            <div className="flex flex-col gap-3">
+                                <textarea
+                                    className="w-full bg-slate-800 border border-slate-600 rounded p-3 font-mono text-xs h-32"
+                                    placeholder="<div style='color:red;'><h1>My PDF Content</h1>...</div>"
+                                    value={pdfHtml}
+                                    onChange={(e) => setPdfHtml(e.target.value)}
+                                />
+                                <button
+                                    onClick={generatePdf}
+                                    disabled={!pdfHtml}
+                                    className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded font-bold text-sm w-fit transition-colors disabled:opacity-50"
+                                >
+                                    + Generate & Attach PDF
+                                </button>
+                            </div>
+                            {/* Hidden container for rendering PDF */}
+                            <div id="pdf-render-target" style={{ position: 'absolute', left: '-9999px', top: 0, width: '800px', backgroundColor: 'white', color: 'black' }}></div>
+                        </div>
+
+                        {/* ATTACHMENTS SECTION */}
+                        <div className="bg-slate-900 border border-slate-700 rounded-xl p-4">
+                            <h4 className="font-bold mb-3 flex items-center gap-2">
+                                <Upload size={16} /> Attachments (PDF / Image)
+                            </h4>
+                            <div className="flex gap-4 items-start">
+                                <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded text-sm font-medium transition-colors border border-slate-600">
+                                    <input type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.gif" className="hidden" onChange={handleAttachmentUpload} />
+                                    + Add Files
+                                </label>
+                                <div className="flex-1 flex flex-wrap gap-2">
+                                    {attachments.map((file, i) => (
+                                        <div key={i} className="bg-slate-800 px-3 py-1 rounded-full text-xs flex items-center gap-2 border border-slate-600">
+                                            <span>{file.filename}</span>
+                                            <button onClick={() => setAttachments(prev => prev.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-300">
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {attachments.length === 0 && <span className="text-slate-500 text-sm italic py-2">No attachments selected.</span>}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -398,7 +509,7 @@ export default function MyMail({ user }) {
                 )}
 
             </div>
-        </div>
+        </div >
     );
 }
 

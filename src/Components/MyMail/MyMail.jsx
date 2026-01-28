@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { Mail, Server, Users, FileText, Settings, Play, Pause, RefreshCw, Upload, CheckCircle } from "lucide-react";
+import { Mail, Server, Users, FileText, Settings, Play, Pause, RefreshCw, Upload, CheckCircle, X, Globe } from "lucide-react";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import { toast } from "react-toastify";
 import axios from "axios";
 import CredentialRotator from "./Logic/CredentialRotator";
 import ServerMarket from "./ServerMarket";
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
 const API_URL = "https://verigate-backend.onrender.com/api/mymail";
@@ -526,7 +526,7 @@ function TabBtn({ id, label, icon, active, set }) {
 function GlobeIcon() {
     return <Globe size={16} />
 }
-import { Globe } from "lucide-react";
+
 
 function StatCard({ label, val, color }) {
     return (

@@ -18,7 +18,7 @@ export default function AdminUser() {
     }
     const requesterId = authData.user.id;
 
-    fetch("https://verigate-backend.onrender.com/get-users", {
+    fetch("https://nexauthapi.vercel.app/get-users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ requesterId }),
@@ -38,7 +38,7 @@ export default function AdminUser() {
 
   const saveUser = async () => {
     try {
-      const res = await fetch(`https://verigate-backend.onrender.com/edit-user/${editingUserId}`, {
+      const res = await fetch(`https://nexauthapi.vercel.app/edit-user/${editingUserId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

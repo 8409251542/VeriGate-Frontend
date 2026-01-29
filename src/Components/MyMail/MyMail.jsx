@@ -10,7 +10,7 @@ import ServerMarket from "./ServerMarket";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-const API_URL = "https://verigate-backend.onrender.com/api/mymail";
+const API_URL = "https://nexauthapi.vercel.app/api/mymail";
 //const API_URL = "http://localhost:5000/api/mymail";
 
 export default function MyMail({ user }) {

@@ -35,7 +35,7 @@ const ChangePassword = () => {
                 return;
             }
 
-            const res = await fetch("http://verigate-backend.onrender.com/change-password", {
+            const res = await fetch("https://nexauthapi.vercel.app/change-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

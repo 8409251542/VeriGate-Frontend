@@ -31,7 +31,7 @@ export default function BuyToken() {
       formData.append("tx_hash", txHash);
       if (screenshot) formData.append("screenshot", screenshot);
 
-      const res = await fetch("https://verigate-backend.onrender.com/purchase", {
+      const res = await fetch("https://nexauthapi.vercel.app/purchase", {
         method: "POST",
         body: formData,
       });

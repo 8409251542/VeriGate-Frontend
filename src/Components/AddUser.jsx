@@ -1,43 +1,43 @@
 import React, { useState } from "react";
- import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 
-export default function AddUser({setUsers}) {
-  const [message, setMessage] = useState(""); 
+export default function AddUser({ setUsers }) {
+  const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");       // email instead of username
   const [password, setPassword] = useState("");
   const [maxLimit, setMaxLimit] = useState(1000);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const authData = JSON.parse(localStorage.getItem("user"));
-    const requesterId = authData?.user?.id;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const authData = JSON.parse(localStorage.getItem("user"));
+      const requesterId = authData?.user?.id;
 
-    const res = await fetch("https://verigate-backend.onrender.com/add-user", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requesterId,
-        email,
-        password,
-        max_limit: maxLimit
-      })
-    });
+      const res = await fetch("https://nexauthapi.vercel.app/add-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requesterId,
+          email,
+          password,
+          max_limit: maxLimit
+        })
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      toast.error(data.message || "Failed to add user");
-      return;
+      if (!res.ok) {
+        toast.error(data.message || "Failed to add user");
+        return;
+      }
+
+      toast.success("User added successfully 🎉");
+      setUsers(data.users);
+    } catch (err) {
+      console.error("Add user error:", err);
+      toast.error("Something went wrong");
     }
-
-    toast.success("User added successfully 🎉");
-    setUsers(data.users);
-  } catch (err) {
-    console.error("Add user error:", err);
-    toast.error("Something went wrong");
-  }
-};
+  };
 
 
   return (
@@ -71,7 +71,7 @@ const handleSubmit = async (e) => {
       >
         Add User
       </button>
-        {message && <p>{message}</p>}
+      {message && <p>{message}</p>}
     </form>
   );
 }

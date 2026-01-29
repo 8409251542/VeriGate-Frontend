@@ -18,7 +18,7 @@ const BulkAppDetection = () => { // Removed user prop to rely on localStorage li
     const COST_PER_10K = 10;
 
     // API BASE
-    const API_BASE = "http://localhost:5000";
+    const API_BASE = "https://nexauthapi.vercel.app";
     // Local backend for now
 
     const APP_OPTIONS = [

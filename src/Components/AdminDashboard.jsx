@@ -34,7 +34,7 @@ const UserManagementDashboard = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch('https://verigate-backend.onrender.com/get-users', {
+      const response = await fetch('https://nexauthapi.vercel.app/get-users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requesterId: adminId })
@@ -63,7 +63,7 @@ const UserManagementDashboard = () => {
       setAddUserLoading(true);
       setError(null);
 
-      const response = await fetch('https://verigate-backend.onrender.com/add-user', {
+      const response = await fetch('https://nexauthapi.vercel.app/add-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

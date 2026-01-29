@@ -7,14 +7,14 @@ export default function PurchaseAdmin() {
   const [selectedPurchaseId, setSelectedPurchaseId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isRejecting, setIsRejecting] = useState(false);
-  
+
   const authData = JSON.parse(localStorage.getItem("user"));
   const adminId = authData?.user?.id;
 
   useEffect(() => {
-    fetch("https://verigate-backend.onrender.com/purchases")
+    fetch("https://nexauthapi.vercel.app/purchases")
       .then((res) => res.json())
-      .then((data) => setPurchases(data.purchases)).then((data)=>console.log(data))
+      .then((data) => setPurchases(data.purchases)).then((data) => console.log(data))
       .catch(() => {
         // Show error without toast
         console.error("Failed to load purchases");
@@ -24,13 +24,12 @@ export default function PurchaseAdmin() {
   const showNotification = (message, type = 'info') => {
     // Simple notification without external library
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white font-medium ${
-      type === 'success' ? 'bg-green-600' : 
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white font-medium ${type === 'success' ? 'bg-green-600' :
       type === 'error' ? 'bg-red-600' : 'bg-blue-600'
-    }`;
+      }`;
     notification.textContent = message;
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
       notification.remove();
     }, 4000);
@@ -38,7 +37,7 @@ export default function PurchaseAdmin() {
 
   const approvePurchase = async (id) => {
     try {
-      const res = await fetch("https://verigate-backend.onrender.com/approve-purchase", {
+      const res = await fetch("https://nexauthapi.vercel.app/approve-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ purchaseId: id, adminId }),
@@ -83,12 +82,12 @@ export default function PurchaseAdmin() {
     setIsRejecting(true);
 
     try {
-      const res = await fetch("https://verigate-backend.onrender.com/reject-purchase", {
+      const res = await fetch("https://nexauthapi.vercel.app/reject-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          purchaseId: selectedPurchaseId, 
-          reason: rejectionReason.trim() 
+        body: JSON.stringify({
+          purchaseId: selectedPurchaseId,
+          reason: rejectionReason.trim()
         }),
       });
 
@@ -102,7 +101,7 @@ export default function PurchaseAdmin() {
       setPurchases((prev) =>
         prev.map((p) => (p.id === selectedPurchaseId ? { ...p, status: "rejected", rejection_reason: rejectionReason.trim() } : p))
       );
-      
+
       closeRejectModal();
     } catch (err) {
       console.error(err);
@@ -114,8 +113,8 @@ export default function PurchaseAdmin() {
 
   const getStatusBadge = (status) => {
     const baseClasses = "px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide";
-    
-    switch(status) {
+
+    switch (status) {
       case "pending":
         return `${baseClasses} bg-yellow-100 text-yellow-800 border border-yellow-300`;
       case "approved":
@@ -173,11 +172,10 @@ export default function PurchaseAdmin() {
             {/* Table Body */}
             <tbody className="bg-white divide-y divide-gray-200">
               {purchases.map((p, index) => (
-                <tr 
-                  key={p.id} 
-                  className={`transition-all duration-200 hover:bg-red-50 hover:shadow-sm ${
-                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                  }`}
+                <tr
+                  key={p.id}
+                  className={`transition-all duration-200 hover:bg-red-50 hover:shadow-sm ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                    }`}
                 >
                   <td className="px-4 py-3 text-sm font-medium text-gray-900">
                     {p.user_id}
@@ -222,13 +220,13 @@ export default function PurchaseAdmin() {
                   <td className="px-4 py-3 text-sm">
                     {p.status === "pending" && (
                       <div className="flex gap-2">
-                        <button 
+                        <button
                           onClick={() => approvePurchase(p.id)}
                           className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md text-xs"
                         >
                           Approve
                         </button>
-                        <button 
+                        <button
                           onClick={() => openRejectModal(p.id)}
                           className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md text-xs"
                         >
@@ -284,7 +282,7 @@ export default function PurchaseAdmin() {
               <p className="text-sm text-gray-600 mb-4">
                 Please provide a reason for rejecting this purchase request. This will help the user understand why their request was declined.
               </p>
-              
+
               <div className="mb-4">
                 <label htmlFor="rejectionReason" className="block text-sm font-medium text-gray-700 mb-2">
                   Rejection Reason *

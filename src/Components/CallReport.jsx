@@ -23,7 +23,7 @@ export default function CallReportGenerator() {
   const [usdtBalance, setUsdtBalance] = useState(0);
   const COST_PER_REPORT = 3.5; // 1 USDT
 
-  const API_BASE = "https://verigate-backend.onrender.com";
+  const API_BASE = "https://nexauthapi.vercel.app";
 
   // Fetch user details on load
   const fetchUserDetails = async (userId) => {

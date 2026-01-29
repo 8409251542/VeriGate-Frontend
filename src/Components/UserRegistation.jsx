@@ -40,7 +40,7 @@ export default function UserRegistration({ setUser }) {
     setLoading(true);
 
     try {
-      const res = await fetch("https://verigate-backend.onrender.com/register", {
+      const res = await fetch("https://nexauthapi.vercel.app/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

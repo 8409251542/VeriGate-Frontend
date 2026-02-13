@@ -480,11 +480,11 @@ export default function MyMail({ user }) {
                         {/* ATTACHMENTS SECTION */}
                         <div className="bg-slate-900 border border-slate-700 rounded-xl p-4">
                             <h4 className="font-bold mb-3 flex items-center gap-2">
-                                <Upload size={16} /> Attachments (PDF / Image)
+                                <Upload size={16} /> Attachments (Docs / Images / Zip)
                             </h4>
                             <div className="flex gap-4 items-start">
                                 <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded text-sm font-medium transition-colors border border-slate-600">
-                                    <input type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.gif" className="hidden" onChange={handleAttachmentUpload} />
+                                    <input type="file" multiple className="hidden" onChange={handleAttachmentUpload} />
                                     + Add Files
                                 </label>
                                 <div className="flex-1 flex flex-wrap gap-2">

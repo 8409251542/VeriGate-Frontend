@@ -12,6 +12,7 @@ import html2canvas from "html2canvas";
 
 const API_URL = "https://nexauthapi.vercel.app/api/mymail";
 //const API_URL = "http://localhost:5000/api/mymail";
+//file updated
 
 export default function MyMail({ user }) {
     const [activeTab, setActiveTab] = useState("control"); // control, emails, smtp, template, market

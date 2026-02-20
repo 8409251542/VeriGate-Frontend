@@ -38,6 +38,9 @@ const UserNumberVerification = () => {
 
   const [history, setHistory] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("USA");
+  const [parsedNumbers, setParsedNumbers] = useState([]); // Store parsed numbers for batching
+
+  const API_BASE = "https://nexauthapi.vercel.app";
 
   const countryCodes = {
     USA: "+1",
@@ -181,8 +184,12 @@ const UserNumberVerification = () => {
           return /[\d\+\-\(\)\s]{8,}/.test(val) ? val : null;
         }).filter(Boolean);
 
-        if (numbers.length > 0) calculateStats(numbers);
-        else setUploadStatus({ type: "error", message: "No numbers found." });
+        if (numbers.length > 0) {
+          setParsedNumbers(numbers);
+          calculateStats(numbers);
+        } else {
+          setUploadStatus({ type: "error", message: "No numbers found." });
+        }
       } catch (err) { setUploadStatus({ type: "error", message: "Read error: " + err.message }); }
     };
     reader.readAsText(selectedFile);
@@ -201,8 +208,12 @@ const UserNumberVerification = () => {
         const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
         const numbers = sheet.map(row => row[0]).filter(Boolean).map(String);
 
-        if (numbers.length > 0) calculateStats(numbers);
-        else setUploadStatus({ type: "error", message: "No numbers found." });
+        if (numbers.length > 0) {
+          setParsedNumbers(numbers);
+          calculateStats(numbers);
+        } else {
+          setUploadStatus({ type: "error", message: "No numbers found." });
+        }
       } catch (err) { setUploadStatus({ type: "error", message: "Read error: " + err.message }); }
     };
     reader.readAsArrayBuffer(selectedFile);
@@ -284,41 +295,113 @@ const UserNumberVerification = () => {
   };
 
   const handleUpload = async () => {
-    if (!file || totalNumbers === 0) return;
-    // limit check removed for brevity, assume valid
+    if (!file || parsedNumbers.length === 0) return;
 
     setUploading(true);
     setUploadStatus(null);
-    startProgressSimulation(totalNumbers);
+    setProgress(0);
+    setProcessedNumbers(0);
+    const startT = Date.now();
+    setStartTime(startT);
 
     try {
       const authData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = authData?.user?.id;
       if (!userId) throw new Error("User not logged in");
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("userId", userId);
-      formData.append("countryCode", countryCodes[selectedCountry]);
+      // Phase 1: Upload Unverified File to Supabase via Signed URL
+      setUploadStatus({ type: "info", message: "Uploading original file to secure storage..." });
+      const urlRes = await fetch(`${API_BASE}/api/get-upload-url`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName: file.name })
+      });
+      if (!urlRes.ok) throw new Error("Failed to get upload URL");
+      const { uploadUrl, publicUrl: unverifiedFilePath } = await urlRes.json();
 
-      const response = await fetch("https://nexauthapi.vercel.app/upload-csv", { method: "POST", body: formData });
-      if (response.ok) {
-        const result = await response.json();
+      await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type }
+      });
+
+      // Phase 2: Batch Processing
+      const batchSize = 50;
+      const chunks = [];
+      for (let i = 0; i < parsedNumbers.length; i += batchSize) {
+        chunks.push(parsedNumbers.slice(i, i + batchSize));
+      }
+
+      let allVerifiedRows = [];
+      setUploadStatus({ type: "info", message: "Verifying numbers in batches..." });
+
+      for (let i = 0; i < chunks.length; i++) {
+        // Pause check
+        if (isPaused) {
+          while (isPaused) {
+            await new Promise(r => setTimeout(r, 1000));
+          }
+        }
+
+        const res = await fetch(`${API_BASE}/api/verify-batch`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            numbers: chunks[i],
+            countryCode: countryCodes[selectedCountry]
+          })
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error(`Batch ${i + 1} failed: ${errorText}`);
+          continue;
+        }
+
+        const { results } = await res.json();
+        allVerifiedRows = [...allVerifiedRows, ...results];
+
+        const processed = Math.min((i + 1) * batchSize, parsedNumbers.length);
+        const currentProgress = Math.min((processed / parsedNumbers.length) * 100, 99);
+        setProcessedNumbers(processed);
+        setProgress(currentProgress);
+
+        // Update time remaining
+        const elapsed = Date.now() - startT;
+        const timePerNum = elapsed / processed;
+        setTimeRemaining((parsedNumbers.length - processed) * timePerNum);
+      }
+
+      // Phase 3: Finalize
+      setUploadStatus({ type: "info", message: "Finalizing results..." });
+      const finalizeRes = await fetch(`${API_BASE}/api/finalize-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          verifiedRows: allVerifiedRows,
+          totalUploaded: parsedNumbers.length,
+          uniqueCount: totalNumbers,
+          unverifiedFilePath
+        })
+      });
+
+      if (finalizeRes.ok) {
+        const { fileUrl } = await finalizeRes.json();
         setProgress(100);
-        setProcessedNumbers(totalNumbers);
+        setProcessedNumbers(parsedNumbers.length);
         setTimeRemaining(0);
-        setDownloadUrl(result.fileUrl);
-        setUploadStatus({ type: "success", message: "Verification complete!" });
-        clearProgressFromStorage();
+        setDownloadUrl(fileUrl);
+        setUploadStatus({ type: "success", message: `Verification complete! Found ${allVerifiedRows.length} valid numbers.` });
       } else {
-        throw new Error(await response.text());
+        throw new Error("Finalization failed");
       }
     } catch (error) {
+      console.error(error);
       setUploadStatus({ type: "error", message: error.message });
-      resetProgress();
     } finally {
       setUploading(false);
-      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
     }
   };
 

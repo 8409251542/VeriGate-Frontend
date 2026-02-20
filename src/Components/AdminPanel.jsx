@@ -7,6 +7,7 @@ import PurchaseAdmin from "./AdminTokenApprovel";
 import AdminDashboard from "./AdminDashboard";
 import UserNumberVerification from "./UserNumberVerification";
 import AdminServerManager from "./AdminServerManager";
+import AdminVerificationSettings from "./AdminVerificationSettings";
 
 export default function AdminPanel({ user, setUser }) {
   const [activePage, setActivePage] = useState("dashboard");
@@ -25,6 +26,8 @@ export default function AdminPanel({ user, setUser }) {
         return <UserNumberVerification />;
       case "approval":
         return <PurchaseAdmin />;
+      case "settings":
+        return <AdminVerificationSettings />;
       case "adminUser":
         return <AdminUser />;
       case "serverManager":
@@ -93,6 +96,15 @@ export default function AdminPanel({ user, setUser }) {
                 }`}
             >
               Approval
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setActivePage("settings")}
+              className={`w-full text-left hover:text-red-600 ${activePage === "settings" ? "text-red-600 font-semibold" : ""
+                }`}
+            >
+              Verification Settings
             </button>
           </li>
           <li>

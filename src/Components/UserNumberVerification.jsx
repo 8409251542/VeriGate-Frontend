@@ -327,16 +327,18 @@ const UserNumberVerification = () => {
       });
 
       // Phase 2: Batch Processing
-      const batchSize = 50;
+      const batchSize = 250;
+      const concurrency = 3; // Process 3 batches in parallel
       const chunks = [];
       for (let i = 0; i < parsedNumbers.length; i += batchSize) {
         chunks.push(parsedNumbers.slice(i, i + batchSize));
       }
 
       let allVerifiedRows = [];
-      setUploadStatus({ type: "info", message: "Verifying numbers in batches..." });
+      let batchesCompleted = 0;
+      setUploadStatus({ type: "info", message: `Verifying numbers in parallel batches (${concurrency}x)...` });
 
-      for (let i = 0; i < chunks.length; i++) {
+      const processBatch = async (chunk, index) => {
         // Pause check
         if (isPaused) {
           while (isPaused) {
@@ -349,29 +351,40 @@ const UserNumberVerification = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId,
-            numbers: chunks[i],
+            numbers: chunk,
             countryCode: countryCodes[selectedCountry]
           })
         });
 
         if (!res.ok) {
           const errorText = await res.text();
-          console.error(`Batch ${i + 1} failed: ${errorText}`);
-          continue;
+          console.error(`Batch ${index + 1} failed: ${errorText}`);
+          return;
         }
 
         const { results } = await res.json();
         allVerifiedRows = [...allVerifiedRows, ...results];
 
-        const processed = Math.min((i + 1) * batchSize, parsedNumbers.length);
-        const currentProgress = Math.min((processed / parsedNumbers.length) * 100, 99);
-        setProcessedNumbers(processed);
+        batchesCompleted++;
+        const processedSoFar = Math.min(batchesCompleted * batchSize, parsedNumbers.length);
+        const currentProgress = Math.min((processedSoFar / parsedNumbers.length) * 100, 99);
+
+        setProcessedNumbers(processedSoFar);
         setProgress(currentProgress);
 
         // Update time remaining
         const elapsed = Date.now() - startT;
-        const timePerNum = elapsed / processed;
-        setTimeRemaining((parsedNumbers.length - processed) * timePerNum);
+        const timePerNum = elapsed / processedSoFar;
+        setTimeRemaining((parsedNumbers.length - processedSoFar) * timePerNum);
+      };
+
+      // Process batches with limited concurrency
+      for (let i = 0; i < chunks.length; i += concurrency) {
+        const pool = [];
+        for (let j = 0; j < concurrency && (i + j) < chunks.length; j++) {
+          pool.push(processBatch(chunks[i + j], i + j));
+        }
+        await Promise.all(pool);
       }
 
       // Phase 3: Finalize (Local CSV Gen + Direct Upload)

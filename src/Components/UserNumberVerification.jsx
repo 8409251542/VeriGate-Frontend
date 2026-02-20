@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
+import Papa from "papaparse";
 import {
   Upload,
   FileText,
@@ -373,14 +374,35 @@ const UserNumberVerification = () => {
         setTimeRemaining((parsedNumbers.length - processed) * timePerNum);
       }
 
-      // Phase 3: Finalize
-      setUploadStatus({ type: "info", message: "Finalizing results..." });
+      // Phase 3: Finalize (Local CSV Gen + Direct Upload)
+      setUploadStatus({ type: "info", message: "Preparing verified results..." });
+
+      const csv = Papa.unparse(allVerifiedRows);
+      const csvBlob = new Blob([csv], { type: "text/csv" });
+
+      setUploadStatus({ type: "info", message: "Uploading results to secure storage..." });
+      const finalUrlRes = await fetch(`${API_BASE}/api/get-upload-url`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileName: `verified-${Date.now()}.csv` })
+      });
+      if (!finalUrlRes.ok) throw new Error("Failed to get results upload URL");
+      const { uploadUrl: resultsUploadUrl, publicUrl: verifiedFilePath } = await finalUrlRes.json();
+
+      await fetch(resultsUploadUrl, {
+        method: "PUT",
+        body: csvBlob,
+        headers: { "Content-Type": "text/csv" }
+      });
+
+      setUploadStatus({ type: "info", message: "Finalizing history..." });
       const finalizeRes = await fetch(`${API_BASE}/api/finalize-verification`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
-          verifiedRows: allVerifiedRows,
+          verifiedFilePath,
+          verifiedCount: allVerifiedRows.length,
           totalUploaded: parsedNumbers.length,
           uniqueCount: totalNumbers,
           unverifiedFilePath
@@ -388,11 +410,10 @@ const UserNumberVerification = () => {
       });
 
       if (finalizeRes.ok) {
-        const { fileUrl } = await finalizeRes.json();
         setProgress(100);
         setProcessedNumbers(parsedNumbers.length);
         setTimeRemaining(0);
-        setDownloadUrl(fileUrl);
+        setDownloadUrl(verifiedFilePath);
         setUploadStatus({ type: "success", message: `Verification complete! Found ${allVerifiedRows.length} valid numbers.` });
       } else {
         throw new Error("Finalization failed");

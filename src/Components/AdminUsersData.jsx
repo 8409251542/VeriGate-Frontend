@@ -24,7 +24,7 @@ const AdminHistoryDashboard = () => {
         ...(dateFilter.end && { end: dateFilter.end }),
       });
 
-      const response = await fetch(`https://nexauthapi.vercel.app/admin/history?${params}`);
+      const response = await fetch(`https://verigate-backend.onrender.com/admin/history?${params}`);
       if (!response.ok) throw new Error('Failed to fetch history');
 
       // make sure response is JSON

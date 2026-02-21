@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { Shield, Cpu, Zap, Globe } from "lucide-react";
 
-const API_MODE_URL = "https://nexauthapi.vercel.app/api/admin/verification-mode";
+const API_MODE_URL = "https://verigate-backend.onrender.com/api/admin/verification-mode";
 
 export default function AdminVerificationSettings() {
     const [mode, setMode] = useState("hybrid");

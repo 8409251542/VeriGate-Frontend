@@ -7,7 +7,7 @@ export default function ImageTools() {
     const [balance, setBalance] = useState(0);
     const authData = JSON.parse(localStorage.getItem("user"));
     const userId = authData?.user?.id;
-    const API_BASE = "https://nexauthapi.vercel.app"; // Or your backend URL
+    const API_BASE = "https://verigate-backend.onrender.com"; // Or your backend URL
 
     // URLS for your local tools (served via backend)
     const tools = [

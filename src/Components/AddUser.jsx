@@ -13,7 +13,7 @@ export default function AddUser({ setUsers }) {
       const authData = JSON.parse(localStorage.getItem("user"));
       const requesterId = authData?.user?.id;
 
-      const res = await fetch("https://nexauthapi.vercel.app/add-user", {
+      const res = await fetch("https://verigate-backend.onrender.com/add-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

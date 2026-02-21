@@ -41,7 +41,7 @@ const UserNumberVerification = () => {
   const [selectedCountry, setSelectedCountry] = useState("USA");
   const [parsedNumbers, setParsedNumbers] = useState([]); // Store parsed numbers for batching
 
-  const API_BASE = "https://nexauthapi.vercel.app";
+  const API_BASE = "https://verigate-backend.onrender.com";
 
   const countryCodes = {
     USA: "+1",
@@ -138,7 +138,7 @@ const UserNumberVerification = () => {
       const authData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = authData?.user?.id;
       if (userId) {
-        const res = await fetch(`https://nexauthapi.vercel.app/user-history?userId=${userId}`);
+        const res = await fetch(`https://verigate-backend.onrender.com/user-history?userId=${userId}`);
         const data = await res.json();
         setHistory(Array.isArray(data) ? data : []);
       }

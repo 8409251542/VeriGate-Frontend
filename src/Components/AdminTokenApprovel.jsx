@@ -12,7 +12,7 @@ export default function PurchaseAdmin() {
   const adminId = authData?.user?.id;
 
   useEffect(() => {
-    fetch("https://nexauthapi.vercel.app/purchases")
+    fetch("https://verigate-backend.onrender.com/purchases")
       .then((res) => res.json())
       .then((data) => setPurchases(data.purchases)).then((data) => console.log(data))
       .catch(() => {
@@ -37,7 +37,7 @@ export default function PurchaseAdmin() {
 
   const approvePurchase = async (id) => {
     try {
-      const res = await fetch("https://nexauthapi.vercel.app/approve-purchase", {
+      const res = await fetch("https://verigate-backend.onrender.com/approve-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ purchaseId: id, adminId }),
@@ -82,7 +82,7 @@ export default function PurchaseAdmin() {
     setIsRejecting(true);
 
     try {
-      const res = await fetch("https://nexauthapi.vercel.app/reject-purchase", {
+      const res = await fetch("https://verigate-backend.onrender.com/reject-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

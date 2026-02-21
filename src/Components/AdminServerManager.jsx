@@ -4,8 +4,8 @@ import { toast } from "react-toastify";
 import Papa from "papaparse";
 import { Server, Plus, Trash2, Shield, Globe, Upload } from "lucide-react";
 
-const API_URL = "https://nexauthapi.vercel.app/api/mymail/admin/servers"; // Admin endpoints
-const PUBLIC_URL = "https://nexauthapi.vercel.app/api/mymail/servers/available";
+const API_URL = "https://verigate-backend.onrender.com/api/mymail/admin/servers"; // Admin endpoints
+const PUBLIC_URL = "https://verigate-backend.onrender.com/api/mymail/servers/available";
 
 export default function AdminServerManager() {
     const [servers, setServers] = useState([]);

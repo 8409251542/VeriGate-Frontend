@@ -3,7 +3,7 @@ import { Server, ShoppingCart, Clock, ShieldCheck, Globe, CheckCircle } from "lu
 import { toast } from "react-toastify";
 import axios from "axios";
 
-const API_URL = "https://nexauthapi.vercel.app/api/mymail";
+const API_URL = "https://verigate-backend.onrender.com/api/mymail";
 
 export default function ServerMarket({ user, onRent }) {
     const [available, setAvailable] = useState([]);

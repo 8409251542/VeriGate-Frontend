@@ -186,8 +186,9 @@ const UserNumberVerification = () => {
         }).filter(Boolean);
 
         if (numbers.length > 0) {
-          setParsedNumbers(numbers);
-          calculateStats(numbers);
+          const uniqueNumbers = [...new Set(numbers)];
+          setParsedNumbers(uniqueNumbers);
+          calculateStats(uniqueNumbers);
         } else {
           setUploadStatus({ type: "error", message: "No numbers found." });
         }
@@ -210,8 +211,9 @@ const UserNumberVerification = () => {
         const numbers = sheet.map(row => row[0]).filter(Boolean).map(String);
 
         if (numbers.length > 0) {
-          setParsedNumbers(numbers);
-          calculateStats(numbers);
+          const uniqueNumbers = [...new Set(numbers)];
+          setParsedNumbers(uniqueNumbers);
+          calculateStats(uniqueNumbers);
         } else {
           setUploadStatus({ type: "error", message: "No numbers found." });
         }
